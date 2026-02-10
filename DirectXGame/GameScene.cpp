@@ -20,6 +20,8 @@ void GameScene::Initialize() {
 	// 軸方向表示が参照するビュープロジェクションを指定する
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 
+	player_ = new Player();
+	player_->Initialize(model_,textureHandle_,&camera_);
 }
 
 void GameScene::Update() {
@@ -38,6 +40,8 @@ void GameScene::Update() {
 
 	//// 移動した座標をスプライトに反映
 	// sprite_->SetPosition(position);
+
+	player_->Update();
 }
 
 void GameScene::Draw() {
@@ -45,8 +49,10 @@ void GameScene::Draw() {
 	PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
 
 	Model::PreDraw();
-	model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_);
+	player_->Draw();
 	Model::PostDraw();
+
+	
 }
 
 GameScene::GameScene() { Initialize(); }
@@ -55,4 +61,5 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete model_;
 	sprite_ = nullptr;
+	delete player_;
 }

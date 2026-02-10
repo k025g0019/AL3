@@ -1,6 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
-
+#include "Player.h"
 class GameScene {
 
 public:
@@ -18,6 +18,7 @@ public:
 
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
+	Player* player_ = nullptr;
 
 	
 
