@@ -1,10 +1,10 @@
-#include "GameScene.h"
+﻿#include "GameScene.h"
 
 using namespace KamataEngine;
 void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("mario.jpg");
 
-	// スプライトインスタンスの生成
+	// �X�v���C�g�C���X�^���X�̐���
 	model_ = Model::Create();
 
 	worldTransform_.Initialize();
@@ -14,10 +14,10 @@ void GameScene::Initialize() {
 
 	debugCamera_ = new DebugCamera(1280, 720);
 
-	// 軸方向表示の表示を有効にする
+	// �������\���̕\����L���ɂ���
 	AxisIndicator::GetInstance()->SetVisible(true);
 
-	// 軸方向表示が参照するビュープロジェクションを指定する
+	// �������\�����Q�Ƃ���r���[�v���W�F�N�V������w�肷��
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 
 	player_ = new Player();
@@ -31,14 +31,14 @@ void GameScene::Update() {
 	ImGui::End();
 
 	debugCamera_->Update();
-	//// スプライトの座標を取得
+	//// �X�v���C�g�̍��W��擾
 	// Vector2 position = sprite_->GetPosition();
 
-	//// 座標を{2.0f, 1.0f}移動
+	//// ���W��{2.0f, 1.0f}�ړ�
 	// position.x += 2.0f;
 	// position.y += 1.0f;
 
-	//// 移動した座標をスプライトに反映
+	//// �ړ��������W��X�v���C�g�ɔ��f
 	// sprite_->SetPosition(position);
 
 	player_->Update();
