@@ -46,7 +46,7 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
-	PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
+	//PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
 
 	Model::PreDraw();
 	player_->Draw();
