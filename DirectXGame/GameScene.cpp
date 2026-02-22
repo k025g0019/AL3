@@ -176,7 +176,8 @@ void GameScene::Initialize() {
 	// スカイドーム
 	skydome = new Skydome();
 	skydome->Initialize();
-
+	player_ = new Player();
+	player_->Initialize(model_, textureHandle_, &camera_);
 	
 }
 
@@ -226,6 +227,7 @@ void GameScene::Update() {
 
 	// スカイドーム更新
 	skydome->Update();
+	player_->Update();
 }
 
 void GameScene::Draw() {
@@ -245,6 +247,9 @@ void GameScene::Draw() {
 
 	// スカイドーム描画
 	skydome->Draw(camera_);
+
+	player_->Draw();
+
 	Model::PostDraw();
 
 	
@@ -267,6 +272,7 @@ GameScene::~GameScene() {
 		}
 	}
 	worldTransformBlocks_.clear();
+	delete player_;
 
 	delete modelSkydome;
 }
