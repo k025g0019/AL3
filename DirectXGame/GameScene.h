@@ -1,7 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include <vector>
-
+#include "Skydome.h"
 class GameScene {
 
 public:
@@ -18,10 +18,12 @@ public:
 	KamataEngine::Camera camera_;
 
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
-		
+
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
-	
+	Skydome* skydome = nullptr;	
 	bool isDebugCameraActive = false;
+	KamataEngine::Model* modelSkydome = nullptr;
+
 	GameScene();
 
 	~GameScene();
