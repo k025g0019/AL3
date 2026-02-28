@@ -1,14 +1,16 @@
-﻿#pragma once
+#pragma once
 #include "KamataEngine.h"
+#include "MapChipField.h"
 #include "Player.h"
 class GameScene {
 
 public:
+	
 	uint32_t textureHandle_ = 0; // テクスチャハンドル
 
 	// 3Dモデルのハンドル
 	KamataEngine::Model* model_ = nullptr;
-
+	KamataEngine::Model* modelBlock_ = nullptr;
 	// スプライト
 	KamataEngine::Sprite* sprite_ = nullptr;
 
@@ -20,10 +22,11 @@ public:
 
 	Player* player_ = nullptr;
 
+	MapChipField* mapChipField_;
 	
-
+	void GenerateBlocks();
 	GameScene();
-
+	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
 	~GameScene();
 
 	// 初期化
