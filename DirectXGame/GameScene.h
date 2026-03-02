@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include "MapChipField.h"
 #include "Player.h"
+#include "Matrix4x4.h"
 class GameScene {
 
 public:
@@ -11,6 +12,7 @@ public:
 	// 3Dモデルのハンドル
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::Model* modelBlock_ = nullptr;
+	KamataEngine::Model* playerModel_ = nullptr;
 	// スプライト
 	KamataEngine::Sprite* sprite_ = nullptr;
 
