@@ -61,7 +61,7 @@ void Player::Update() {
 					turnFirstRotationY = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
-				acceleration.x += 30.0f;
+				acceleration.x += 50.0f;
 			}
 			if (Input::GetInstance()->PushKey(DIK_LEFT)) {
 				if (velocity_.x > 0.0f) {
@@ -73,7 +73,7 @@ void Player::Update() {
 					turnFirstRotationY = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
-				acceleration.x -=-30.0f;
+				acceleration.x -=50.0f;
 			}
 
 			if (turnTimer_ > 0.0f) {
