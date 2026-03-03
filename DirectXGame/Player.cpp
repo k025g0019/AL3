@@ -35,9 +35,9 @@ void Player::Update() {
 
 	// 地面との当たり判定
 	if (velocity_.y < 0) {
-		if (worldTransform_.translation_.y <= 1.0f) {
+		if (worldTransform_.translation_.y <= 2.0f) {
 			laning = true;
-			worldTransform_.translation_.y = 1.0f;
+			worldTransform_.translation_.y = 2.0f;
 			velocity_.y = 0.0f;
 		}
 	}
@@ -47,7 +47,7 @@ void Player::Update() {
 		// ジャンプ開始
 		if (velocity_.y > 0.0f) {
 			onGround_ = false;
-			
+
 		}
 
 		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
