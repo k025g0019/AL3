@@ -1,12 +1,12 @@
 #pragma once
+#include "CameraController.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
-#include "Player.h"
 #include "Matrix4x4.h"
+#include "Player.h"
 class GameScene {
 
 public:
-	
 	uint32_t textureHandle_ = 0; // テクスチャハンドル
 
 	// 3Dモデルのハンドル
@@ -23,9 +23,9 @@ public:
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
 	Player* player_ = nullptr;
-
+	CameraController* cameraController_;
 	MapChipField* mapChipField_;
-	
+
 	void GenerateBlocks();
 	GameScene();
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;

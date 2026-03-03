@@ -47,7 +47,6 @@ void Player::Update() {
 		// ジャンプ開始
 		if (velocity_.y > 0.0f) {
 			onGround_ = false;
-
 		}
 
 		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
@@ -62,7 +61,7 @@ void Player::Update() {
 					turnFirstRotationY = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
-				acceleration.x += 10.0f;
+				acceleration.x += 30.0f;
 			}
 			if (Input::GetInstance()->PushKey(DIK_LEFT)) {
 				if (velocity_.x > 0.0f) {
@@ -74,14 +73,13 @@ void Player::Update() {
 					turnFirstRotationY = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
-				acceleration.x -= 10.0f;
+				acceleration.x -=-30.0f;
 			}
 
 			if (turnTimer_ > 0.0f) {
 
 				turnTimer_ -= deltaTime;
 				turnTimer_ = (std::max)(turnTimer_, 0.0f);
-
 
 				float t = 1.0f - (turnTimer_ / kTimeTurn);
 
@@ -115,10 +113,10 @@ void Player::Update() {
 			// めり込み補正
 			worldTransform_.translation_.y = 2.0f;
 
-			//摩擦で横方向速度が減衰する
+			// 摩擦で横方向速度が減衰する
 			velocity_.x *= (1.0f - kAttenu);
 
-			//下方向速度をリセット
+			// 下方向速度をリセット
 			velocity_.y = 0.0f;
 
 			// 接地状態に移行
@@ -135,3 +133,5 @@ void Player::Draw() { model_->Draw(worldTransform_, *camera_); }
 // 	delete debugCamera_;
 // 	delete player_;
 // }
+const WorldTransform& Player::GetWorldTransform() const { return worldTransform_; }
+
