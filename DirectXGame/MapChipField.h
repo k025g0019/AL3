@@ -1,7 +1,7 @@
 #pragma once
+#include <math/Vector3.h>
 #include <string>
 #include <vector>
-#include <math/Vector3.h>
 
 enum class MapChipType {
 	kBlank,
@@ -10,7 +10,6 @@ enum class MapChipType {
 
 struct MapChipData {
 	std::vector<std::vector<MapChipType>> data;
-
 };
 class MapChipField {
 public:
@@ -23,10 +22,23 @@ public:
 	MapChipData mapchipDate_;
 
 	void ResetMapChipData();
+	struct Rect {
+		float left;
+		float right;
+		float bottom;
+		float top;
+	};
 
+	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
 
 	void LoadMapChipCsv(const std::string& filePath);
 
+	struct IndexSet {
+		uint32_t xIndex;
+		uint32_t yIndex;
+	};
+
+	IndexSet GetMapChipIndexSetByPosition(const KamataEngine::Vector3& position);
 	KamataEngine::Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
 };

@@ -1,15 +1,26 @@
 #include "Player.h"
+
 #include <algorithm>
 #include <numbers>
+
+#include "MapChipField.h"
 #define NOMINMAX
 namespace KamataEngine {
 class Model;
 }
 
 using namespace KamataEngine;
+KamataEngine::Vector3 Add(const KamataEngine::Vector3& a, const KamataEngine::Vector3& b) {
+	KamataEngine::Vector3 result;
+	result.x = a.x + b.x;
+	result.y = a.y + b.y;
+	result.z = a.z + b.z;
+	return result;
+}
 
 Player::Player() {}
 Player::~Player() {}
+
 // 初期化
 void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) {
 	assert(model);
@@ -26,9 +37,7 @@ void Player::Update() {
 
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	float deltaTime = 1.0f / 60.0f; // 仮。実際はフレーム時間
-	worldTransform_.translation_.x += velocity_.x * deltaTime;
-	worldTransform_.translation_.y += velocity_.y * deltaTime;
-	worldTransform_.translation_.z += velocity_.z * deltaTime;
+
 
 	// 着地フラグ
 	bool laning = false;
@@ -73,9 +82,11 @@ void Player::Update() {
 					turnFirstRotationY = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
-				acceleration.x -=50.0f;
+				acceleration.x -= 50.0f;
 			}
+			
 
+			
 			if (turnTimer_ > 0.0f) {
 
 				turnTimer_ -= deltaTime;
@@ -105,6 +116,7 @@ void Player::Update() {
 		if (Input::GetInstance()->PushKey(DIK_UP)) {
 			velocity_.y += kJumpAcceleration;
 		}
+		
 	} else {
 
 		// 着地
@@ -126,6 +138,18 @@ void Player::Update() {
 		velocity_.y += -kGravity;
 		velocity_.y = (std::max)(velocity_.y, -kLimitFallSpeed);
 	}
+	// 衝突情報の初期化
+	CollisionMapInfo collisionMapInfo{};
+
+	// 移動量に速度の値をコピー
+	collisionMapInfo.movement.x = velocity_.x * deltaTime;
+	collisionMapInfo.movement.y = velocity_.y * deltaTime;
+	collisionMapInfo.movement.z = velocity_.z * deltaTime;
+	// マップチップとの当たり判定
+	MapCollisionDetection(collisionMapInfo);
+
+	ApplyCollision(collisionMapInfo);
+	ProcessCeilingHit(collisionMapInfo);
 	worldTransform_.TransferMatrix();
 }
 // 描画
@@ -135,3 +159,84 @@ void Player::Draw() { model_->Draw(worldTransform_, *camera_); }
 // }
 const WorldTransform& Player::GetWorldTransform() const { return worldTransform_; }
 
+
+void Player::MapCollisionDetection(CollisionMapInfo& info) {
+
+	std::array<Vector3, 4> positionsNew;
+
+	for (uint32_t i = 0; i < positionsNew.size(); i++) {
+		positionsNew[i] = CornerPosition(Add(worldTransform_.translation_, info.movement), static_cast<Corner>(i));
+	}
+
+	// 上方向以外はスキップ
+	if (info.movement.y <= 0) {
+		return;
+	}
+
+	bool hit = false;
+
+	MapChipField::IndexSet indexSet;
+	MapChipType mapChipType;
+
+	// 左上
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kTopLeft]);
+
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+
+	if (mapChipType == MapChipType::kBlock) {
+		hit = true;
+	}
+
+	// 右上
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kTopRight]);
+
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+
+	if (mapChipType == MapChipType::kBlock) {
+		hit = true;
+	}
+
+	// 衝突時
+	if (hit) {
+
+		indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kTopLeft]);
+
+		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+
+		float playerY = worldTransform_.translation_.y;
+
+		info.movement.y = rect.bottom - (playerY + kHeight / 2.0f) - kBlank;
+
+		info.ceiling = true;
+	}
+}
+
+Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
+	Vector3 offsetTable[kNumCorners] = {
+	    {+kWidth / 2.0f, -kHeight / 2.0f, 0.0f},
+	    {-kWidth / 2.0f, -kHeight / 2.0f, 0.0f},
+	    {+kWidth / 2.0f, +kHeight / 2.0f, 0.0f},
+	    {-kWidth / 2.0f, +kHeight / 2.0f, 0.0f},
+	};
+
+	KamataEngine::Vector3 result;
+	result.x = center.x + offsetTable[(int)corner].x;
+	result.y = center.y + offsetTable[(int)corner].y;
+	result.z = center.z + offsetTable[(int)corner].z;
+
+	return result;
+}
+
+void Player::ApplyCollision(const CollisionMapInfo& info) {
+
+	worldTransform_.translation_.x += info.movement.x;
+	worldTransform_.translation_.y += info.movement.y;
+	worldTransform_.translation_.z += info.movement.z;
+}
+
+void Player::ProcessCeilingHit(const CollisionMapInfo& info) {
+
+	if (info.ceiling) {
+		velocity_.y = 0.0f;
+	}
+}

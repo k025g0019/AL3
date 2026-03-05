@@ -40,8 +40,6 @@ void GameScene::Initialize() {
 	debugCamera_ = new DebugCamera(1280, 720);
 	mapChipField_ = new MapChipField;
 
-	
-
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 	// �������\���̕\����L���ɂ���
 	AxisIndicator::GetInstance()->SetVisible(true);
@@ -49,11 +47,12 @@ void GameScene::Initialize() {
 	// �������\�����Q�Ƃ���r���[�v���W�F�N�V������w�肷��
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 	GenerateBlocks();
-	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(0, 10);
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2*2, 5*2);
 
 	player_ = new Player();
 	player_->Initialize(playerModel_, &camera_, playerPosition);
 
+	player_->SetMapChipField(mapChipField_);
 	//==================================
 	// CameraController
 	//===================================
