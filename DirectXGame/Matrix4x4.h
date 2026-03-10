@@ -5,6 +5,7 @@ namespace KamataEngine {
 	struct Vector3;
 }
 
+// スケール行列
 static KamataEngine::Matrix4x4 MakeScaleMatrix(const KamataEngine::Vector3& s) {
 	KamataEngine::Matrix4x4 m{};
 	m.m[0][0] = s.x;
@@ -26,6 +27,7 @@ static KamataEngine::Matrix4x4 MakeScaleMatrix(const KamataEngine::Vector3& s) {
 	return m;
 }
 
+// X軸回転行列
 static KamataEngine::Matrix4x4 MakeRotateX(float x) {
 	const float c = std::cos(x);
 	const float s = std::sin(x);
@@ -49,6 +51,7 @@ static KamataEngine::Matrix4x4 MakeRotateX(float x) {
 	return m;
 }
 
+// Y軸回転行列
 static KamataEngine::Matrix4x4 MakeRotateY(float y) {
 	const float c = std::cos(y);
 	const float s = std::sin(y);
@@ -72,6 +75,7 @@ static KamataEngine::Matrix4x4 MakeRotateY(float y) {
 	return m;
 }
 
+// Z軸回転行列
 static KamataEngine::Matrix4x4 MakeRotateZ(float z) {
 	const float c = std::cos(z);
 	const float s = std::sin(z);
@@ -95,6 +99,7 @@ static KamataEngine::Matrix4x4 MakeRotateZ(float z) {
 	return m;
 }
 
+// 行列積
 static KamataEngine::Matrix4x4 Multiply(const KamataEngine::Matrix4x4& a, const KamataEngine::Matrix4x4& b) {
 	KamataEngine::Matrix4x4 r{};
 	for (int i = 0; i < 4; i++) {
@@ -105,6 +110,7 @@ static KamataEngine::Matrix4x4 Multiply(const KamataEngine::Matrix4x4& a, const 
 	return r;
 }
 
+// 平行移動行列
 static KamataEngine::Matrix4x4 MakeTranslateMatrix(const KamataEngine::Vector3& t) {
 	KamataEngine::Matrix4x4 m{};
 	m.m[0][0] = 1.0f;
@@ -126,7 +132,7 @@ static KamataEngine::Matrix4x4 MakeTranslateMatrix(const KamataEngine::Vector3& 
 	return m;
 }
 
-// scale, rotation(xyz), translation からワールド行列を作る
+// scale・rotation・translation からワールド行列を作る
 static KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& s, const KamataEngine::Vector3& r, const KamataEngine::Vector3& t) {
 	KamataEngine::Matrix4x4 S = MakeScaleMatrix(s);
 	KamataEngine::Matrix4x4 Rx = MakeRotateX(r.x);
@@ -134,7 +140,7 @@ static KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& s, 
 	KamataEngine::Matrix4x4 Rz = MakeRotateZ(r.z);
 	KamataEngine::Matrix4x4 T = MakeTranslateMatrix(t);
 
-	// 回転順は教材に合わせる（ここは Z→Y→X の例）
+	// 回転は Z -> Y -> X の順で合成
 	KamataEngine::Matrix4x4 R = Multiply(Multiply(Rz, Ry), Rx);
 
 	return Multiply(Multiply(S, R), T);

@@ -25,7 +25,7 @@ public:
 	void Reset();
 
 	// 追従対象とカメラの座標の差
-	KamataEngine::Vector3 targetOffset_ = {0, 0, -30.0f};
+	KamataEngine::Vector3 targetOffset_ = {0, 0, -25.0f};
 	void SetCamera(KamataEngine::Camera* camera) { camera_ = camera; }
 
 	struct Rect {

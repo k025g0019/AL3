@@ -59,7 +59,7 @@ public:
 	// 落下速度の上限
 	static inline const float kLimitFallSpeed = 10.0f;
 	// ジャンプ加速度
-	static inline const float kJumpAcceleration = 35.0f;
+	static inline const float kJumpAcceleration = 105.0f;
 	// 方向転換にかかる時間
 	static inline const float kTimeTurn = 0.3f;
 
@@ -68,8 +68,8 @@ public:
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
 	// キャラクターの当たり判定のサイズ
-	static inline const float kWidth = 1.0f;
-	static inline const float kHeight = 1.0f;
+	static inline const float kWidth = 2.0f;
+	static inline const float kHeight = 2.0f;
 
 	// プレイヤーの当たり判定の角の座標を求める
 	void MapCollisionUp(CollisionMapInfo& info);
@@ -77,17 +77,22 @@ public:
 	// プレイヤーの当たり判定の角の座標を求める
 	void MapCollisionDown(CollisionMapInfo& info);
 
+	void MapCollisionRight(CollisionMapInfo& info);
+
+	void MapCollisionLeft(CollisionMapInfo& info);
+
 	// プレイヤーの当たり判定の角の座標を求める
 	void MapCollisionDetection(CollisionMapInfo& info);
 	KamataEngine::Vector3 CornerPosition(const KamataEngine::Vector3& center, Corner corner);
 	static inline const float kBlank = 0.01f;
+	static inline const float kGroundProbeDepth = 0.05f;
 
 	void ApplyCollision(const CollisionMapInfo& info);
 	void ProcessCeilingHit(const CollisionMapInfo& info);
 	KamataEngine::WorldTransform worldTransform_;
 
 	static inline const float kAttenu = 0.1f;
-	static inline const float kLimitRunSpeed = 10.0f;
+	static inline const float kLimitRunSpeed = 80.0f;
 	KamataEngine::Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0;
 
@@ -97,4 +102,3 @@ public:
 	// マップチップによるフィールド
 	MapChipField* mapChipField_ = nullptr;
 };
-
