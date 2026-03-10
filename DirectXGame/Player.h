@@ -68,8 +68,8 @@ public:
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
 	// キャラクターの当たり判定のサイズ
-	static inline const float kWidth = 0.8f;
-	static inline const float kHeight = 0.8f;
+	static inline const float kWidth = 1.0f;
+	static inline const float kHeight = 1.0f;
 
 	// プレイヤーの当たり判定の角の座標を求める
 	void MapCollisionUp(CollisionMapInfo& info);

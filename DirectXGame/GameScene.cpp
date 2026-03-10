@@ -12,12 +12,12 @@ void GameScene::GenerateBlocks() {
 	}
 
 	for (uint32_t i = 0; i < kNumBlockVertical; i++) {
-		for (uint32_t j = i % 2; j < kNumBlockHorizontal; j += 2) {
+		for (uint32_t j = 0; j < kNumBlockHorizontal; j++) {
 
 			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
 				worldTransformBlocks_[i][j] = new WorldTransform();
 				worldTransformBlocks_[i][j]->Initialize();
-				worldTransformBlocks_[i][j]->scale_ = {2.0f, 2.0f, 2.0f};
+				worldTransformBlocks_[i][j]->scale_ = {1.0f, 1.0f, 1.0f};
 				worldTransformBlocks_[i][j]->rotation_ = {0.0f, 0.0f, 0.0f};
 
 				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
@@ -47,7 +47,7 @@ void GameScene::Initialize() {
 	// �������\�����Q�Ƃ���r���[�v���W�F�N�V������w�肷��
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 	GenerateBlocks();
-	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2*2, 5*2);
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 5);
 
 	player_ = new Player();
 	player_->Initialize(playerModel_, &camera_, playerPosition);

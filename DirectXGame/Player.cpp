@@ -32,7 +32,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	worldTransform_.Initialize();
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
-	worldTransform_.scale_ = {2.0f, 2.0f, 2.0f};
+	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
 	worldTransform_.translation_ = position;
 }
 
@@ -175,11 +175,11 @@ void Player::MapCollisionDetection(CollisionMapInfo& info) {
 Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 	// 角のオフセットテーブル
 	Vector3 offsetTable[kNumCorners] = {
-	    {+kWidth / 2.0f, -kHeight / 2.0f, 0.0f},
-	    {-kWidth / 2.0f, -kHeight / 2.0f, 0.0f},
-	    {+kWidth / 2.0f, +kHeight / 2.0f, 0.0f},
-	    {-kWidth / 2.0f, +kHeight / 2.0f, 0.0f},
-	};
+        {-kWidth / 2.0f, +kHeight / 2.0f, 0.0f},
+        {+kWidth / 2.0f, +kHeight / 2.0f, 0.0f},
+        {-kWidth / 2.0f, -kHeight / 2.0f, 0.0f},
+        {+kWidth / 2.0f, -kHeight / 2.0f, 0.0f},
+    };
 
 	// 角の座標を求める
 	Vector3 result;
@@ -276,69 +276,61 @@ void Player::MapCollisionDown(CollisionMapInfo& info) {
 		return;
 	}
 
-	bool hit = false;
-
-	MapChipField::IndexSet indexSet = mapChipField_->GetMapChipIndexSetByPosition(CornerPosition(Add(worldTransform_.translation_, info.movement), kBottomLeft));
-
-	MapChipField::IndexSet indexSet2 = mapChipField_->GetMapChipIndexSetByPosition(CornerPosition(Add(worldTransform_.translation_, info.movement), kBottomRight));
-
-	MapChipType type1 = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-	MapChipType type2 = mapChipField_->GetMapChipTypeByIndex(indexSet2.xIndex, indexSet2.yIndex);
-
-	if (type1 == MapChipType::kBlock || type2 == MapChipType::kBlock) {
-		hit = true;
+	std::array<Vector3, 4> positionsNew;
+	for (uint32_t i = 0; i < positionsNew.size(); i++) {
+		positionsNew[i] = CornerPosition(Add(worldTransform_.translation_, info.movement), static_cast<Corner>(i));
 	}
 
-	if (hit) {
+	MapChipField::IndexSet indexSetLeft = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kBottomLeft]);
+	MapChipField::IndexSet indexSetRight = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kBottomRight]);
 
-		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-
-		float playerBottom = worldTransform_.translation_.y - kHeight / 2.0f;
-
-		info.movement.y = rect.top - playerBottom - kBlank;
-
-		info.Landing = true;
+	bool isHitLeft = mapChipField_->GetMapChipTypeByIndex(indexSetLeft.xIndex, indexSetLeft.yIndex) == MapChipType::kBlock;
+	bool isHitRight = mapChipField_->GetMapChipTypeByIndex(indexSetRight.xIndex, indexSetRight.yIndex) == MapChipType::kBlock;
+	if (!isHitLeft && !isHitRight) {
+		return;
 	}
+
+	float playerBottom = worldTransform_.translation_.y - kHeight / 2.0f;
+	float yMoveToLand = info.movement.y;
+
+	if (isHitLeft) {
+		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSetLeft.xIndex, indexSetLeft.yIndex);
+		yMoveToLand = (std::max)(yMoveToLand, rect.top - playerBottom + kBlank);
+	}
+	if (isHitRight) {
+		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSetRight.xIndex, indexSetRight.yIndex);
+		yMoveToLand = (std::max)(yMoveToLand, rect.top - playerBottom + kBlank);
+	}
+
+	info.movement.y = (std::min)(0.0f, yMoveToLand);
+	info.Landing = true;
 }
 
 void Player::groundStateSwiching(const CollisionMapInfo& info) {
 
-	// 自キャラが接地状態
 	if (onGround_) {
-
-		if (info.Landing) {
-
-			// 着地している
-			onGround_ = true;
-			// 着地時にX速度を減衰
-			velocity_.x *= (1.0f - kAttenuationLanding);
-			// 下方向速度をリセット
-			velocity_.y = 0.0f;
-		}
-	} else {
-
 		if (velocity_.y > 0.0f) {
 			onGround_ = false;
-		} else
-		{
+			return;
+		}
 
-			bool hit = false;
+		Vector3 footOffset = {0.0f, -kBlank, 0.0f};
+		Vector3 leftBottom = Add(CornerPosition(worldTransform_.translation_, kBottomLeft), footOffset);
+		Vector3 rightBottom = Add(CornerPosition(worldTransform_.translation_, kBottomRight), footOffset);
 
-			MapChipField::IndexSet indexSet = mapChipField_->GetMapChipIndexSetByPosition(CornerPosition(Add(worldTransform_.translation_, info.movement), kBottomLeft));
+		MapChipField::IndexSet leftIndex = mapChipField_->GetMapChipIndexSetByPosition(leftBottom);
+		MapChipField::IndexSet rightIndex = mapChipField_->GetMapChipIndexSetByPosition(rightBottom);
+		bool hitLeft = mapChipField_->GetMapChipTypeByIndex(leftIndex.xIndex, leftIndex.yIndex) == MapChipType::kBlock;
+		bool hitRight = mapChipField_->GetMapChipTypeByIndex(rightIndex.xIndex, rightIndex.yIndex) == MapChipType::kBlock;
 
-			MapChipField::IndexSet indexSet2 = mapChipField_->GetMapChipIndexSetByPosition(CornerPosition(Add(worldTransform_.translation_, info.movement), kBottomRight));
-
-			MapChipType type1 = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-
-			MapChipType type2 = mapChipField_->GetMapChipTypeByIndex(indexSet2.xIndex, indexSet2.yIndex);
-
-			if (type1 == MapChipType::kBlock || type2 == MapChipType::kBlock) {
-				hit = true;
-			}
-
-			if (!hit) {
-				onGround_ = false;
-			}
+		if (!hitLeft && !hitRight) {
+			onGround_ = false;
+		}
+	} else {
+		if (info.Landing) {
+			onGround_ = true;
+			velocity_.x *= (1.0f - kAttenuationLanding);
+			velocity_.y = 0.0f;
 		}
 	}
 }
