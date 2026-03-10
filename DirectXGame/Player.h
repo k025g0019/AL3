@@ -33,7 +33,7 @@ public:
 		KLeft,
 	};
 
-	//角
+	// 角
 	enum Corner {
 		kTopLeft,
 		kTopRight,
@@ -43,7 +43,6 @@ public:
 		kNumCorners,
 	};
 
-	
 	struct CollisionMapInfo {
 		bool ceiling = false;
 		bool Landing = false;
@@ -60,7 +59,7 @@ public:
 	// 落下速度の上限
 	static inline const float kLimitFallSpeed = 10.0f;
 	// ジャンプ加速度
-	static inline const float kJumpAcceleration = 50.0f;
+	static inline const float kJumpAcceleration = 35.0f;
 	// 方向転換にかかる時間
 	static inline const float kTimeTurn = 0.3f;
 
@@ -72,6 +71,13 @@ public:
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
 
+	// プレイヤーの当たり判定の角の座標を求める
+	void MapCollisionUp(CollisionMapInfo& info);
+
+	// プレイヤーの当たり判定の角の座標を求める
+	void MapCollisionDown(CollisionMapInfo& info);
+
+	// プレイヤーの当たり判定の角の座標を求める
 	void MapCollisionDetection(CollisionMapInfo& info);
 	KamataEngine::Vector3 CornerPosition(const KamataEngine::Vector3& center, Corner corner);
 	static inline const float kBlank = 0.01f;
@@ -85,8 +91,10 @@ public:
 	KamataEngine::Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0;
 
+	static inline const float kAttenuationLanding = 0.5f;
+	void groundStateSwiching(const CollisionMapInfo& info);
+
 	// マップチップによるフィールド
 	MapChipField* mapChipField_ = nullptr;
-
-
 };
+
