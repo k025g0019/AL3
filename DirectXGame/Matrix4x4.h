@@ -1,4 +1,5 @@
-#pragma once
+﻿#pragma once
+
 #include <math/Matrix4x4.h>
 
 namespace KamataEngine {
@@ -27,7 +28,7 @@ static KamataEngine::Matrix4x4 MakeScaleMatrix(const KamataEngine::Vector3& s) {
 	return m;
 }
 
-// X軸回転行列
+// X 回転行列
 static KamataEngine::Matrix4x4 MakeRotateX(float x) {
 	const float c = std::cos(x);
 	const float s = std::sin(x);
@@ -51,7 +52,7 @@ static KamataEngine::Matrix4x4 MakeRotateX(float x) {
 	return m;
 }
 
-// Y軸回転行列
+// Y 回転行列
 static KamataEngine::Matrix4x4 MakeRotateY(float y) {
 	const float c = std::cos(y);
 	const float s = std::sin(y);
@@ -75,7 +76,7 @@ static KamataEngine::Matrix4x4 MakeRotateY(float y) {
 	return m;
 }
 
-// Z軸回転行列
+// Z 回転行列
 static KamataEngine::Matrix4x4 MakeRotateZ(float z) {
 	const float c = std::cos(z);
 	const float s = std::sin(z);
@@ -132,7 +133,7 @@ static KamataEngine::Matrix4x4 MakeTranslateMatrix(const KamataEngine::Vector3& 
 	return m;
 }
 
-// scale・rotation・translation からワールド行列を作る
+// SRT からアフィン行列を作成
 static KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& s, const KamataEngine::Vector3& r, const KamataEngine::Vector3& t) {
 	KamataEngine::Matrix4x4 S = MakeScaleMatrix(s);
 	KamataEngine::Matrix4x4 Rx = MakeRotateX(r.x);
@@ -140,7 +141,7 @@ static KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& s, 
 	KamataEngine::Matrix4x4 Rz = MakeRotateZ(r.z);
 	KamataEngine::Matrix4x4 T = MakeTranslateMatrix(t);
 
-	// 回転は Z -> Y -> X の順で合成
+	// 回転の適用順は Z -> Y -> X
 	KamataEngine::Matrix4x4 R = Multiply(Multiply(Rz, Ry), Rx);
 
 	return Multiply(Multiply(S, R), T);

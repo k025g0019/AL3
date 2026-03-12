@@ -1,23 +1,20 @@
-#include "MapChipField.h"
+﻿#include "MapChipField.h"
 
 #include <cassert>
+#include <cmath>
 #include <fstream>
 #include <map>
-#include <cmath>
 #include <sstream>
 #include <string>
 
-#include "GameScene.h"
-
 namespace {
-// CSV値とマップ種別の対応表
+// CSV 値からチップ種別へ変換するテーブル
 std::map<std::string, MapChipType> mapChipTable = {
     {"0", MapChipType::kBlank},
     {"1", MapChipType::kBlock},
 };
 }
 
-// マップ配列を既定サイズで初期化
 void MapChipField::ResetMapChipData() {
 	mapchipDate_.data.clear();
 	mapchipDate_.data.resize(kNumBlockVirtical);
@@ -26,7 +23,6 @@ void MapChipField::ResetMapChipData() {
 	}
 }
 
-// CSVを読み込み、2次元配列へ格納
 void MapChipField::LoadMapChipCsv(const std::string& filePath) {
 	ResetMapChipData();
 
@@ -54,7 +50,6 @@ void MapChipField::LoadMapChipCsv(const std::string& filePath) {
 	}
 }
 
-// インデックス範囲外は空白扱い
 MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex) {
 	if (kNumBlockHorizontal - 1 < xIndex) {
 		return MapChipType::kBlank;
@@ -65,12 +60,10 @@ MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex
 	return mapchipDate_.data[yIndex][xIndex];
 }
 
-// インデックスからマス中心のワールド座標を取得
 KamataEngine::Vector3 MapChipField::GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex) {
 	return KamataEngine::Vector3(kBlockWidth * xIndex, kBlockHeight * (kNumBlockVirtical - 1 - yIndex), 0);
 }
 
-// インデックスからマス矩形を取得
 MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex) {
 	KamataEngine::Vector3 center = GetMapChipPositionByIndex(xIndex, yIndex);
 
@@ -82,7 +75,6 @@ MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex
 	return rect;
 }
 
-// ワールド座標からマップインデックスへ変換
 MapChipField::IndexSet MapChipField::GetMapChipIndexSetByPosition(const KamataEngine::Vector3& position) {
 	IndexSet indexSet;
 	float xCell = std::floor((position.x + kBlockWidth * 0.5f) / kBlockWidth);
