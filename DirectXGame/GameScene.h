@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CameraController.h"
+#include "DeathParticles.h"
 #include "Enemy.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
@@ -33,6 +34,7 @@ public:
 
 	Player* player_ = nullptr;                     // プレイヤー本体
 	std::vector<Enemy*> enemies_;                  // 敵配列
+	DeathParticles* deathParticles_ = nullptr;     // デスパーティクル
 	CameraController* cameraController_ = nullptr; // カメラ追従制御
 	MapChipField* mapChipField_ = nullptr;         // マップチップ情報
 

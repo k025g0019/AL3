@@ -87,6 +87,10 @@ void GameScene::Initialize() {
 	cameraController_->Initialize();
 	cameraController_->SetTarget(player_);
 	cameraController_->Reset();
+
+	// 仮の生成処理（生成テスト）
+	deathParticles_ = new DeathParticles();
+	deathParticles_->Initialize(playerModel_, &camera_, playerPosition);
 }
 
 //====================
@@ -122,6 +126,11 @@ void GameScene::Update() {
 	}
 	CheckAllCollisions();
 
+	// デスパーティクルが存在するなら更新
+	if (deathParticles_) {
+		deathParticles_->Update();
+	}
+
 	// 追従カメラを更新
 	cameraController_->Update();
 }
@@ -140,6 +149,11 @@ void GameScene::Draw() {
 	player_->Draw();
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
+	}
+
+	// デスパーティクルが存在するなら描画
+	if (deathParticles_) {
+		deathParticles_->Draw();
 	}
 
 	// マップブロックを描画
@@ -171,6 +185,8 @@ GameScene::~GameScene() {
 		delete enemy;
 	}
 	enemies_.clear();
+	delete deathParticles_;
+	deathParticles_ = nullptr;
 	delete mapChipField_;
 }
 
