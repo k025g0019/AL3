@@ -7,35 +7,47 @@
 #include "Matrix4x4.h"
 #include "Player.h"
 
-// ゲーム全体の進行を管理するシーン
+//====================
+// ゲームシーン
+//====================
+/*
+ゲーム全体の進行を管理する
+*/
 class GameScene {
 public:
+	//====================
+	// 変数
+	//====================
+	// 使用テクスチャID
 	uint32_t textureHandle_ = 0;
 
-	// 描画モデル
-	KamataEngine::Model* model_ = nullptr;
-	KamataEngine::Model* modelBlock_ = nullptr;
-	KamataEngine::Model* playerModel_ = nullptr;
+	/* 描画モデル */
+	KamataEngine::Model* model_ = nullptr;       // 汎用モデル
+	KamataEngine::Model* modelBlock_ = nullptr;  // ブロック描画モデル
+	KamataEngine::Model* playerModel_ = nullptr; // プレイヤー/敵で使うモデル
+	KamataEngine::Sprite* sprite_ = nullptr;     // 2D描画用（未使用）
 
-	KamataEngine::Sprite* sprite_ = nullptr;
+	KamataEngine::WorldTransform worldTransform_;     // シーン基準変換
+	KamataEngine::Camera camera_;                     // 本番カメラ
+	KamataEngine::DebugCamera* debugCamera_ = nullptr; // デバッグカメラ
 
-	KamataEngine::WorldTransform worldTransform_;
-	KamataEngine::Camera camera_;
-	KamataEngine::DebugCamera* debugCamera_ = nullptr;
+	Player* player_ = nullptr;                     // プレイヤー本体
+	std::vector<Enemy*> enemies_;                  // 敵配列
+	CameraController* cameraController_ = nullptr; // カメラ追従制御
+	MapChipField* mapChipField_ = nullptr;         // マップチップ情報
 
-	Player* player_ = nullptr;
-	Enemy* enemy_ = nullptr;
-	CameraController* cameraController_ = nullptr;
-	MapChipField* mapChipField_ = nullptr;
+	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_; // ブロック用変換配列
 
-	// マップチップからブロックを生成
-	void GenerateBlocks();
+	//====================
+	// 関数
+	//====================
+	/* 生成 */ GameScene();
+	/* 破棄 */ ~GameScene();
 
-	GameScene();
-	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
-	~GameScene();
+	/* 初期化 */ void Initialize();
+	/* 更新 */ void Update();
+	/* 描画 */ void Draw();
 
-	void Initialize();
-	void Update();
-	void Draw();
+	/* ブロック生成 */ void GenerateBlocks();
+	/* 当たり判定 */ void CheckAllCollisions();
 };

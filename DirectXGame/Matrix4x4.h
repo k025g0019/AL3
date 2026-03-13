@@ -6,7 +6,19 @@ namespace KamataEngine {
 	struct Vector3;
 }
 
+//====================
+// 行列ユーティリティ
+//====================
+/*
+S/R/T 行列の作成と行列積を行う補助関数群
+*/
+
+//====================
 // スケール行列
+//====================
+/*
+拡大縮小行列を作成する
+*/
 static KamataEngine::Matrix4x4 MakeScaleMatrix(const KamataEngine::Vector3& s) {
 	KamataEngine::Matrix4x4 m{};
 	m.m[0][0] = s.x;
@@ -28,7 +40,12 @@ static KamataEngine::Matrix4x4 MakeScaleMatrix(const KamataEngine::Vector3& s) {
 	return m;
 }
 
-// X 回転行列
+//====================
+// X回転行列
+//====================
+/*
+X軸回転行列を作成する
+*/
 static KamataEngine::Matrix4x4 MakeRotateX(float x) {
 	const float c = std::cos(x);
 	const float s = std::sin(x);
@@ -52,7 +69,12 @@ static KamataEngine::Matrix4x4 MakeRotateX(float x) {
 	return m;
 }
 
-// Y 回転行列
+//====================
+// Y回転行列
+//====================
+/*
+Y軸回転行列を作成する
+*/
 static KamataEngine::Matrix4x4 MakeRotateY(float y) {
 	const float c = std::cos(y);
 	const float s = std::sin(y);
@@ -76,7 +98,12 @@ static KamataEngine::Matrix4x4 MakeRotateY(float y) {
 	return m;
 }
 
-// Z 回転行列
+//====================
+// Z回転行列
+//====================
+/*
+Z軸回転行列を作成する
+*/
 static KamataEngine::Matrix4x4 MakeRotateZ(float z) {
 	const float c = std::cos(z);
 	const float s = std::sin(z);
@@ -100,7 +127,12 @@ static KamataEngine::Matrix4x4 MakeRotateZ(float z) {
 	return m;
 }
 
+//====================
 // 行列積
+//====================
+/*
+4x4行列同士の積を計算する
+*/
 static KamataEngine::Matrix4x4 Multiply(const KamataEngine::Matrix4x4& a, const KamataEngine::Matrix4x4& b) {
 	KamataEngine::Matrix4x4 r{};
 	for (int i = 0; i < 4; i++) {
@@ -111,7 +143,12 @@ static KamataEngine::Matrix4x4 Multiply(const KamataEngine::Matrix4x4& a, const 
 	return r;
 }
 
+//====================
 // 平行移動行列
+//====================
+/*
+平行移動行列を作成する
+*/
 static KamataEngine::Matrix4x4 MakeTranslateMatrix(const KamataEngine::Vector3& t) {
 	KamataEngine::Matrix4x4 m{};
 	m.m[0][0] = 1.0f;
@@ -133,16 +170,22 @@ static KamataEngine::Matrix4x4 MakeTranslateMatrix(const KamataEngine::Vector3& 
 	return m;
 }
 
-// SRT からアフィン行列を作成
+//====================
+// アフィン行列
+//====================
+/*
+SRTからアフィン行列を作成する
+*/
 static KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& s, const KamataEngine::Vector3& r, const KamataEngine::Vector3& t) {
-	KamataEngine::Matrix4x4 S = MakeScaleMatrix(s);
-	KamataEngine::Matrix4x4 Rx = MakeRotateX(r.x);
-	KamataEngine::Matrix4x4 Ry = MakeRotateY(r.y);
-	KamataEngine::Matrix4x4 Rz = MakeRotateZ(r.z);
-	KamataEngine::Matrix4x4 T = MakeTranslateMatrix(t);
+	KamataEngine::Matrix4x4 sMat = MakeScaleMatrix(s);
+	KamataEngine::Matrix4x4 rxMat = MakeRotateX(r.x);
+	KamataEngine::Matrix4x4 ryMat = MakeRotateY(r.y);
+	KamataEngine::Matrix4x4 rzMat = MakeRotateZ(r.z);
+	KamataEngine::Matrix4x4 tMat = MakeTranslateMatrix(t);
 
-	// 回転の適用順は Z -> Y -> X
-	KamataEngine::Matrix4x4 R = Multiply(Multiply(Rz, Ry), Rx);
+	// 回転順は Z -> Y -> X
+	KamataEngine::Matrix4x4 rMat = Multiply(Multiply(rzMat, ryMat), rxMat);
 
-	return Multiply(Multiply(S, R), T);
+	// S * R * T の順で合成
+	return Multiply(Multiply(sMat, rMat), tMat);
 }

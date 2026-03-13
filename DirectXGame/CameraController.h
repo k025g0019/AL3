@@ -4,26 +4,40 @@
 
 class Player;
 
-// プレイヤーを追従する 2D 横スクロール向けカメラ制御
+//====================
+// カメラ制御
+//====================
+/*
+プレイヤーを追従するカメラ制御クラス
+*/
 class CameraController {
 public:
-	// 初期状態を設定する
-	void Initialize();
+	//====================
+	// 関数
+	//====================
+	/* 初期化 */
+	void Initialize(); // 初期値設定
 
-	// ターゲット位置へ補間しながら更新する
-	void Update();
+	/* 更新 */
+	void Update(); // 毎フレーム更新
 
-	// 追従対象
+	/* リセット */
+	void Reset(); // 即時リセット
+
+	//====================
+	// 変数
+	//====================
+	/* 追従対象 */
 	Player* target_ = nullptr;
-	void SetTarget(Player* target) { target_ = target; }
 
-	// カメラをターゲット位置へ即座に合わせる
-	void Reset();
+	/* カメラ参照設定 */
+	void SetTarget(Player* target) { target_ = target; }                 // 追従対象を設定
+	void SetCamera(KamataEngine::Camera* camera) { camera_ = camera; }   // 制御対象カメラを設定
 
-	// ターゲットからの相対オフセット
-	KamataEngine::Vector3 targetOffset_ = {0, 0, -25.0f};
-	void SetCamera(KamataEngine::Camera* camera) { camera_ = camera; }
+	/* 追従オフセット */
+	KamataEngine::Vector3 targetOffset_ = {0.0f, 0.0f, -25.0f};
 
+	/* 可動範囲構造体 */
 	struct Rect {
 		float left = 0.0f;
 		float top = 1.0f;
@@ -31,19 +45,23 @@ public:
 		float bottom = 0.0f;
 	};
 
-	// カメラ移動の絶対制限領域
-	Rect movableArea_ = {0, 100, 0, 100};
-	void SetMovableArea(const Rect& area) { movableArea_ = area; }
+	/* カメラ可動範囲 */
+	Rect movableArea_ = {0.0f, 100.0f, 0.0f, 100.0f};
+	void SetMovableArea(const Rect& area) { movableArea_ = area; } // カメラ可動範囲を設定
 
-	// 実際に追いかける目標位置
+	/* 現在の追従目標位置 */
 	KamataEngine::Vector3 targetPosition_ = {};
 
-	// 補間率
-	static inline const float kInterpolationRate = 0.1f;
-	// プレイヤー速度を先読みする係数
-	static inline const float kVelocityBias = 0.5f;
+	//====================
+	// 定数
+	//====================
+	/* 補間率 */
+	static inline const float kInterpolationRate = 0.1f; // カメラ追従の補間率
 
-	// ターゲット周囲で許可する追従マージン
+	/* 速度先読み係数 */
+	static inline const float kVelocityBias = 0.5f; // プレイヤー速度の先読み係数
+
+	/* 追従許容マージン */
 	static inline const Rect margin = {
 		.left = -10.0f,
 		.top = 10.0f,
@@ -52,5 +70,5 @@ public:
 	};
 
 private:
-	KamataEngine::Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr; // 制御するカメラ
 };
