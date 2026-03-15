@@ -1,28 +1,19 @@
 ﻿//====================
-// ゲームシーン 実装
+// GameScene
 //====================
 #include "GameScene.h"
 
 using namespace KamataEngine;
 
-//====================
-// ブロック生成
-//====================
-/*
-マップ情報をもとにブロックのワールド変換を生成する
-*/
 void GameScene::GenerateBlocks() {
-	// マップサイズを定義
-	uint32_t kNumBlockVertical = 20;
-	uint32_t kNumBlockHorizontal = 100;
+	const uint32_t kNumBlockVertical = 20;
+	const uint32_t kNumBlockHorizontal = 100;
 
-	// 2次元配列のサイズを確保
 	worldTransformBlocks_.resize(kNumBlockVertical);
 	for (uint32_t i = 0; i < kNumBlockVertical; i++) {
 		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
 	}
 
-	// ブロックチップの位置だけWorldTransformを生成
 	for (uint32_t i = 0; i < kNumBlockVertical; i++) {
 		for (uint32_t j = 0; j < kNumBlockHorizontal; j++) {
 			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
@@ -36,43 +27,30 @@ void GameScene::GenerateBlocks() {
 	}
 }
 
-//====================
-// 初期化
-//====================
-/*
-シーンで使うリソースとオブジェクトを初期化する
-*/
 void GameScene::Initialize() {
-	// テクスチャとモデルを読み込む
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	playerModel_ = Model::CreateFromOBJ("player", true);
 	model_ = Model::Create();
 	modelBlock_ = Model::CreateFromOBJ("block", true);
 
-	// ワールド変換とカメラを初期化
 	worldTransform_.Initialize();
 	camera_.Initialize();
 	PrimitiveDrawer::GetInstance()->SetCamera(&camera_);
 
-	// デバッグカメラとマップを初期化
 	debugCamera_ = new DebugCamera(1280, 720);
 	mapChipField_ = new MapChipField;
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 
-	// 軸表示を設定
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 
-	// マップブロックを生成
 	GenerateBlocks();
 
-	// プレイヤーを生成
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
 	player_ = new Player();
 	player_->Initialize(playerModel_, &camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// 敵を複数生成
 	const int32_t kEnemyCount = 3;
 	for (int32_t i = 0; i < kEnemyCount; ++i) {
 		Enemy* newEnemy = new Enemy();
@@ -81,34 +59,18 @@ void GameScene::Initialize() {
 		enemies_.push_back(newEnemy);
 	}
 
-	// カメラ制御を初期化
 	cameraController_ = new CameraController();
 	cameraController_->SetCamera(&camera_);
 	cameraController_->Initialize();
 	cameraController_->SetTarget(player_);
 	cameraController_->Reset();
 
-	// 仮の生成処理（生成テスト）
-	deathParticles_ = new DeathParticles();
-	deathParticles_->Initialize(playerModel_, &camera_, playerPosition);
+	phase_ = Phase::kPlay;
+	finished_ = false;
+	deathParticles_ = nullptr;
 }
 
-//====================
-// 更新
-//====================
-/*
-毎フレームの更新処理を実行する
-*/
-void GameScene::Update() {
-	// デバッグUIを表示
-	ImGui::Begin("Debug1");
-	ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
-	ImGui::End();
-
-	// デバッグカメラを更新
-	debugCamera_->Update();
-
-	// ブロック行列を更新
+void GameScene::UpdateBlockMatrices() {
 	for (const std::vector<KamataEngine::WorldTransform*>& worldTransformBlockRow : worldTransformBlocks_) {
 		for (KamataEngine::WorldTransform* worldTransformBlock : worldTransformBlockRow) {
 			if (!worldTransformBlock) {
@@ -118,45 +80,76 @@ void GameScene::Update() {
 			worldTransformBlock->TransferMatrix();
 		}
 	}
+}
 
-	// プレイヤー・敵・当たり判定を更新
+void GameScene::UpdatePlayPhase() {
 	player_->Update();
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
 	CheckAllCollisions();
-
-	// デスパーティクルが存在するなら更新
-	if (deathParticles_) {
-		deathParticles_->Update();
-	}
-
-	// 追従カメラを更新
 	cameraController_->Update();
+
+	ChangePhase();
 }
 
-//====================
-// 描画
-//====================
-/*
-シーン内オブジェクトを描画する
-*/
+void GameScene::UpdateDeathPhase() {
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
+
+	if (deathParticles_) {
+		deathParticles_->Update();
+		if (deathParticles_->IsFinished()) {
+			finished_ = true;
+		}
+	}
+}
+
+void GameScene::ChangePhase() {
+	if (phase_ == Phase::kPlay) {
+		if (player_ && player_->IsDead()) {
+			phase_ = Phase::kDeath;
+			const Vector3 deathParticlesPosition = player_->GetWorldPosition();
+			deathParticles_ = new DeathParticles();
+			deathParticles_->Initialize(playerModel_, &camera_, deathParticlesPosition);
+		}
+	}
+}
+
+void GameScene::Update() {
+	ImGui::Begin("Debug1");
+	ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
+	ImGui::End();
+
+	debugCamera_->Update();
+	UpdateBlockMatrices();
+
+	switch (phase_) {
+	case Phase::kPlay:
+		UpdatePlayPhase();
+		break;
+	case Phase::kDeath:
+		UpdateDeathPhase();
+		break;
+	}
+}
+
 void GameScene::Draw() {
-	// モデル描画開始
 	Model::PreDraw();
 
-	// プレイヤーと敵を描画
-	player_->Draw();
+	if (phase_ == Phase::kPlay && player_) {
+		player_->Draw();
+	}
+
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
 
-	// デスパーティクルが存在するなら描画
 	if (deathParticles_) {
 		deathParticles_->Draw();
 	}
 
-	// マップブロックを描画
 	for (const std::vector<WorldTransform*>& worldTransformBlockRow : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockRow) {
 			if (!worldTransformBlock) {
@@ -166,41 +159,56 @@ void GameScene::Draw() {
 		}
 	}
 
-	// モデル描画終了
 	Model::PostDraw();
 }
 
-//====================
-// 生成破棄
-//====================
-GameScene::GameScene() { Initialize(); }
+GameScene::GameScene() = default;
 
 GameScene::~GameScene() {
-	// 生成したオブジェクトを解放
-	delete debugCamera_;
-	delete model_;
-	sprite_ = nullptr;
+	for (std::vector<KamataEngine::WorldTransform*>& row : worldTransformBlocks_) {
+		for (KamataEngine::WorldTransform*& block : row) {
+			delete block;
+			block = nullptr;
+		}
+	}
+	worldTransformBlocks_.clear();
+
+	delete cameraController_;
+	cameraController_ = nullptr;
+
 	delete player_;
+	player_ = nullptr;
+
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
 	enemies_.clear();
+
 	delete deathParticles_;
 	deathParticles_ = nullptr;
+
 	delete mapChipField_;
+	mapChipField_ = nullptr;
+
+	delete debugCamera_;
+	debugCamera_ = nullptr;
+
+	delete sprite_;
+	sprite_ = nullptr;
+
+	delete model_;
+	model_ = nullptr;
+
+	delete modelBlock_;
+	modelBlock_ = nullptr;
+
+	delete playerModel_;
+	playerModel_ = nullptr;
 }
 
-//====================
-// 当たり判定
-//====================
-/*
-プレイヤーと全敵のAABB交差判定を行う
-*/
 void GameScene::CheckAllCollisions() {
-	// プレイヤーのAABBを取得
 	const AABB playerAABB = player_->GetAABB();
 
-	// 各敵との交差判定
 	for (Enemy* enemy : enemies_) {
 		const AABB enemyAABB = enemy->GetAABB();
 		const bool isHit = IsAABBCollision(playerAABB, enemyAABB);

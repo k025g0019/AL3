@@ -84,6 +84,7 @@ public:
 	const KamataEngine::WorldTransform& GetWorldTransform() const; // ワールド変換を取得
 	const KamataEngine::Vector3& GetVelocity() const { return velocity_; } // 速度を取得
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; } // マップ参照を設定
+	bool IsDead() const { return isDead_; }
 
 	/* マップ衝突 */
 	void MapCollisionUp(CollisionMapInfo& info);                                    // 上方向の衝突を判定・補正
@@ -105,4 +106,5 @@ public:
 	KamataEngine::Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0;
 	MapChipField* mapChipField_ = nullptr;
+	bool isDead_ = false;
 };

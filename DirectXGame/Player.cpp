@@ -59,6 +59,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	worldTransform_.scale_ = {2.0f, 2.0f, 2.0f};
 	// 初期座標
 	worldTransform_.translation_ = position;
+	isDead_ = false;
 }
 
 //====================
@@ -507,6 +508,5 @@ AABB Player::GetAABB() const {
 void Player::OnCollision(const Enemy* enemy) {
 	// 未使用引数
 	(void)enemy;
-	// 衝突時に上方向へ少し弾ませる
-	velocity_.y += 10;
+	isDead_ = true;
 }

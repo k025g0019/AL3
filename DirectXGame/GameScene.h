@@ -16,6 +16,11 @@
 */
 class GameScene {
 public:
+	enum class Phase {
+		kPlay,
+		kDeath,
+	};
+
 	//====================
 	// 変数
 	//====================
@@ -49,7 +54,18 @@ public:
 	/* 初期化 */ void Initialize();
 	/* 更新 */ void Update();
 	/* 描画 */ void Draw();
+	bool IsFinished() const { return finished_; }
 
 	/* ブロック生成 */ void GenerateBlocks();
 	/* 当たり判定 */ void CheckAllCollisions();
+
+private:
+	void UpdatePlayPhase();
+	void UpdateDeathPhase();
+	void ChangePhase();
+	void UpdateBlockMatrices();
+
+private:
+	Phase phase_ = Phase::kPlay;
+	bool finished_ = false;
 };
