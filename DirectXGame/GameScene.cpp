@@ -65,7 +65,12 @@ void GameScene::Initialize() {
 	cameraController_->SetTarget(player_);
 	cameraController_->Reset();
 
-	phase_ = Phase::kPlay;
+	delete fade_;
+	fade_ = new Fade();
+	fade_->Initialize();
+	fade_->Start(Fade::Status::FadeIn, kFadeDuration);
+
+	phase_ = Phase::kFadeIn;
 	finished_ = false;
 	deathParticles_ = nullptr;
 }
@@ -101,7 +106,8 @@ void GameScene::UpdateDeathPhase() {
 	if (deathParticles_) {
 		deathParticles_->Update();
 		if (deathParticles_->IsFinished()) {
-			finished_ = true;
+			phase_ = Phase::kFadeOut;
+			fade_->Start(Fade::Status::FadeOut, kFadeDuration);
 		}
 	}
 }
@@ -126,11 +132,23 @@ void GameScene::Update() {
 	UpdateBlockMatrices();
 
 	switch (phase_) {
+	case Phase::kFadeIn:
+		fade_->Update();
+		if (fade_->IsFinished()) {
+			phase_ = Phase::kPlay;
+		}
+		break;
 	case Phase::kPlay:
 		UpdatePlayPhase();
 		break;
 	case Phase::kDeath:
 		UpdateDeathPhase();
+		break;
+	case Phase::kFadeOut:
+		fade_->Update();
+		if (fade_->IsFinished()) {
+			finished_ = true;
+		}
 		break;
 	}
 }
@@ -138,7 +156,7 @@ void GameScene::Update() {
 void GameScene::Draw() {
 	Model::PreDraw();
 
-	if (phase_ == Phase::kPlay && player_) {
+	if ((phase_ == Phase::kFadeIn || phase_ == Phase::kPlay) && player_) {
 		player_->Draw();
 	}
 
@@ -160,6 +178,10 @@ void GameScene::Draw() {
 	}
 
 	Model::PostDraw();
+
+	if (fade_) {
+		fade_->Draw();
+	}
 }
 
 GameScene::GameScene() = default;
@@ -204,6 +226,9 @@ GameScene::~GameScene() {
 
 	delete playerModel_;
 	playerModel_ = nullptr;
+
+	delete fade_;
+	fade_ = nullptr;
 }
 
 void GameScene::CheckAllCollisions() {
