@@ -3,6 +3,8 @@
 //====================
 #include "GameScene.h"
 
+#include <algorithm>
+
 using namespace KamataEngine;
 
 void GameScene::GenerateBlocks() {
@@ -92,6 +94,7 @@ void GameScene::UpdatePlayPhase() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
+	RemoveDeadEnemies();
 	CheckAllCollisions();
 	cameraController_->Update();
 
@@ -102,6 +105,7 @@ void GameScene::UpdateDeathPhase() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
+	RemoveDeadEnemies();
 
 	if (deathParticles_) {
 		deathParticles_->Update();
@@ -235,6 +239,9 @@ void GameScene::CheckAllCollisions() {
 	const AABB playerAABB = player_->GetAABB();
 
 	for (Enemy* enemy : enemies_) {
+		if (enemy->IsCollisionDisabled()) {
+			continue;
+		}
 		const AABB enemyAABB = enemy->GetAABB();
 		const bool isHit = IsAABBCollision(playerAABB, enemyAABB);
 		if (isHit) {
@@ -242,4 +249,15 @@ void GameScene::CheckAllCollisions() {
 			enemy->OnCollision(player_);
 		}
 	}
+}
+
+void GameScene::RemoveDeadEnemies() {
+	auto erasedBegin = std::remove_if(enemies_.begin(), enemies_.end(), [](Enemy* enemy) {
+		if (enemy->IsDead()) {
+			delete enemy;
+			return true;
+		}
+		return false;
+	});
+	enemies_.erase(erasedBegin, enemies_.end());
 }

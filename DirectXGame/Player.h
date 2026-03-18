@@ -80,6 +80,7 @@ public:
 	const KamataEngine::Vector3& GetVelocity() const { return velocity_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 	bool IsDead() const { return isDead_; }
+	bool IsAttack() const { return behavior_ == Behavior::kAttack; }
 
 	void MapCollisionUp(CollisionMapInfo& info);
 	void MapCollisionDown(CollisionMapInfo& info);

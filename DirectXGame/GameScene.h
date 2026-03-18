@@ -54,6 +54,7 @@ private:
 	void UpdateDeathPhase();
 	void ChangePhase();
 	void UpdateBlockMatrices();
+	void RemoveDeadEnemies();
 
 private:
 	static inline const float kFadeDuration = 1.0f;
