@@ -5,6 +5,7 @@
 #include <cmath>
 #include <numbers>
 
+#include "GameScene.h"
 #include "Player.h"
 
 using namespace KamataEngine;
@@ -126,5 +127,15 @@ void Enemy::OnCollision(const Player* player) {
 
 	if (player && player->IsAttack()) {
 		behaviorRequest_ = Behavior::kDead;
+		if (gameScene_) {
+			const Vector3 enemyPos = GetWorldPosition();
+			const Vector3 playerPos = player->GetWorldPosition();
+			Vector3 effectPos = {
+			    (enemyPos.x + playerPos.x) * 0.5f,
+			    (enemyPos.y + playerPos.y) * 0.5f,
+			    (enemyPos.z + playerPos.z) * 0.5f,
+			};
+			gameScene_->CreateHitEffect(effectPos);
+		}
 	}
 }

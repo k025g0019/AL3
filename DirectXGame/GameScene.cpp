@@ -34,10 +34,13 @@ void GameScene::Initialize() {
 	playerModel_ = Model::CreateFromOBJ("player", true);
 	model_ = Model::Create();
 	modelBlock_ = Model::CreateFromOBJ("block", true);
+	hitEffectModel_ = Model::CreateFromOBJ("cube", true);
 
 	worldTransform_.Initialize();
 	camera_.Initialize();
 	PrimitiveDrawer::GetInstance()->SetCamera(&camera_);
+	HitEffect::SetModel(hitEffectModel_);
+	HitEffect::SetCamera(&camera_);
 
 	debugCamera_ = new DebugCamera(1280, 720);
 	mapChipField_ = new MapChipField;
@@ -58,6 +61,7 @@ void GameScene::Initialize() {
 		Enemy* newEnemy = new Enemy();
 		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(12 + static_cast<uint32_t>(i) * 8, 18);
 		newEnemy->Initialize(playerModel_, &camera_, enemyPosition);
+		newEnemy->SetGameScene(this);
 		enemies_.push_back(newEnemy);
 	}
 
@@ -94,7 +98,11 @@ void GameScene::UpdatePlayPhase() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
+	for (HitEffect* hitEffect : hitEffects_) {
+		hitEffect->Update();
+	}
 	RemoveDeadEnemies();
+	RemoveDeadHitEffects();
 	CheckAllCollisions();
 	cameraController_->Update();
 
@@ -105,7 +113,11 @@ void GameScene::UpdateDeathPhase() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
+	for (HitEffect* hitEffect : hitEffects_) {
+		hitEffect->Update();
+	}
 	RemoveDeadEnemies();
+	RemoveDeadHitEffects();
 
 	if (deathParticles_) {
 		deathParticles_->Update();
@@ -167,6 +179,9 @@ void GameScene::Draw() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
+	for (HitEffect* hitEffect : hitEffects_) {
+		hitEffect->Draw();
+	}
 
 	if (deathParticles_) {
 		deathParticles_->Draw();
@@ -209,6 +224,10 @@ GameScene::~GameScene() {
 		delete enemy;
 	}
 	enemies_.clear();
+	for (HitEffect* hitEffect : hitEffects_) {
+		delete hitEffect;
+	}
+	hitEffects_.clear();
 
 	delete deathParticles_;
 	deathParticles_ = nullptr;
@@ -230,6 +249,8 @@ GameScene::~GameScene() {
 
 	delete playerModel_;
 	playerModel_ = nullptr;
+	delete hitEffectModel_;
+	hitEffectModel_ = nullptr;
 
 	delete fade_;
 	fade_ = nullptr;
@@ -260,4 +281,20 @@ void GameScene::RemoveDeadEnemies() {
 		return false;
 	});
 	enemies_.erase(erasedBegin, enemies_.end());
+}
+
+void GameScene::CreateHitEffect(const KamataEngine::Vector3& position) {
+	HitEffect* newHitEffect = HitEffect::Create(position);
+	hitEffects_.push_back(newHitEffect);
+}
+
+void GameScene::RemoveDeadHitEffects() {
+	auto erasedBegin = std::remove_if(hitEffects_.begin(), hitEffects_.end(), [](HitEffect* hitEffect) {
+		if (hitEffect->IsDead()) {
+			delete hitEffect;
+			return true;
+		}
+		return false;
+	});
+	hitEffects_.erase(erasedBegin, hitEffects_.end());
 }

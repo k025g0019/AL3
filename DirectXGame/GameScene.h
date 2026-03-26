@@ -4,6 +4,7 @@
 #include "DeathParticles.h"
 #include "Enemy.h"
 #include "Fade.h"
+#include "HitEffect.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
 #include "Matrix4x4.h"
@@ -23,6 +24,7 @@ public:
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::Model* modelBlock_ = nullptr;
 	KamataEngine::Model* playerModel_ = nullptr;
+	KamataEngine::Model* hitEffectModel_ = nullptr;
 	KamataEngine::Sprite* sprite_ = nullptr;
 
 	KamataEngine::WorldTransform worldTransform_;
@@ -31,6 +33,7 @@ public:
 
 	Player* player_ = nullptr;
 	std::vector<Enemy*> enemies_;
+	std::vector<HitEffect*> hitEffects_;
 	DeathParticles* deathParticles_ = nullptr;
 	CameraController* cameraController_ = nullptr;
 	MapChipField* mapChipField_ = nullptr;
@@ -48,6 +51,7 @@ public:
 
 	void GenerateBlocks();
 	void CheckAllCollisions();
+	void CreateHitEffect(const KamataEngine::Vector3& position);
 
 private:
 	void UpdatePlayPhase();
@@ -55,6 +59,7 @@ private:
 	void ChangePhase();
 	void UpdateBlockMatrices();
 	void RemoveDeadEnemies();
+	void RemoveDeadHitEffects();
 
 private:
 	static inline const float kFadeDuration = 1.0f;
