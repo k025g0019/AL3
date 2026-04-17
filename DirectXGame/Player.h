@@ -46,8 +46,9 @@ public:
 	
 	struct CollisionMapInfo {
 		bool ceiling = false;
-		bool Landing = false;
 		bool wall = false;
+		bool wallLeft = false;
+		bool wallRight = false;
 		KamataEngine::Vector3 movement;
 	};
 	LRDirection lrDirection = LRDirection::kRigh;
@@ -65,8 +66,14 @@ public:
 	static inline const float kTimeTurn = 0.3f;
 
 	const KamataEngine::Vector3& GetVelocity() const { return velocity_; }
+	bool IsDead() const { return isDead_; }
 
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+	void SetScreenLeftLimit(float limit) {
+		screenLeftLimit_ = limit;
+		useScreenLeftLimit_ = true;
+	}
+	void ClearScreenLeftLimit() { useScreenLeftLimit_ = false; }
 
 	// キャラクターの当たり判定のサイズ
 	static inline const float kWidth = 0.8f;
@@ -78,6 +85,8 @@ public:
 
 	void ApplyCollision(const CollisionMapInfo& info);
 	void ProcessCeilingHit(const CollisionMapInfo& info);
+	void ProcessWallHit(const CollisionMapInfo& info);
+	void Kill();
 	KamataEngine::WorldTransform worldTransform_;
 
 	static inline const float kAttenu = 0.1f;
@@ -87,6 +96,9 @@ public:
 
 	// マップチップによるフィールド
 	MapChipField* mapChipField_ = nullptr;
+	bool isDead_ = false;
+	bool useScreenLeftLimit_ = false;
+	float screenLeftLimit_ = 0.0f;
 
 
 };

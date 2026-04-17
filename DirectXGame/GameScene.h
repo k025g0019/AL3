@@ -23,8 +23,8 @@ public:
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
 	Player* player_ = nullptr;
-	CameraController* cameraController_;
-	MapChipField* mapChipField_;
+	CameraController* cameraController_ = nullptr;
+	MapChipField* mapChipField_ = nullptr;
 
 	void GenerateBlocks();
 	GameScene();

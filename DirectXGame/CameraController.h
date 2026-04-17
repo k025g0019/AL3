@@ -6,7 +6,17 @@ class Player;
 
 class CameraController {
 
+	
 public:
+	enum class Mode {
+		kFollow,
+		kForcedScroll,
+	};
+
+	void SetMode(Mode mode) { mode_ = mode; }
+
+	Mode GetMode() const { return mode_; }
+
 	// <summary>
 	// 初期化
 	// </summary>
@@ -38,6 +48,15 @@ public:
 	Rect movableArea_ = {0, 100, 0, 100};
 
 	void SetMovableArea(const Rect& area) { movableArea_ = area; }
+	void SetForcedScrollSpeed(float speed) { forcedScrollSpeed_ = speed; }
+	float GetForcedScrollSpeed() const { return forcedScrollSpeed_; }
+	void SetForcedScrollStopX(float stopX) { forcedScrollStopX_ = stopX; }
+	float GetForcedScrollStopX() const { return forcedScrollStopX_; }
+
+	float GetViewHalfHeight(float worldZ = 0.0f) const;
+	float GetViewHalfWidth(float worldZ = 0.0f) const;
+	float GetLeftEdge(float worldZ = 0.0f) const;
+	float GetRightEdge(float worldZ = 0.0f) const;
 
 	// カメラの目標座標
 	KamataEngine::Vector3 targetPosition_ = {};
@@ -56,4 +75,7 @@ public:
 private:
 	// カメラ
 	KamataEngine::Camera* camera_ = nullptr;
+	Mode mode_ = Mode::kFollow;
+	float forcedScrollSpeed_ = 0.0f;
+	float forcedScrollStopX_ = 100000.0f;
 };

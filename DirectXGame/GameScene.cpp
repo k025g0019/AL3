@@ -2,6 +2,10 @@
 
 using namespace KamataEngine;
 
+namespace {
+constexpr float kForcedScrollSpeed = 0.05f;
+}
+
 void GameScene::GenerateBlocks() {
 	uint32_t kNumBlockVertical = 20;
 	uint32_t kNumBlockHorizontal = 100;
@@ -28,7 +32,7 @@ void GameScene::GenerateBlocks() {
 void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	playerModel_ = Model::CreateFromOBJ("player", true);
-	// �X�v���C�g�C���X�^���X�̐���
+
 	model_ = Model::Create();
 	modelBlock_ = Model::CreateFromOBJ("block", true);
 
@@ -41,10 +45,9 @@ void GameScene::Initialize() {
 	mapChipField_ = new MapChipField;
 
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
-	// �������\���̕\����L���ɂ���
+
 	AxisIndicator::GetInstance()->SetVisible(true);
 
-	// �������\�����Q�Ƃ���r���[�v���W�F�N�V������w�肷��
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 	GenerateBlocks();
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2*2, 5*2);
@@ -68,6 +71,19 @@ void GameScene::Initialize() {
 
 	// カメラのリセット
 	cameraController_->Reset();
+	const float viewHalfWidth = cameraController_->GetViewHalfWidth();
+	const CameraController::Rect cameraArea = {
+	    .left = viewHalfWidth - 0.5f,
+	    .top = 100.0f,
+	    .right = MapChipField::kNumBlockHorizontal - viewHalfWidth - 0.5f,
+	    .bottom = 0.0f,
+	};
+	cameraController_->SetMovableArea(cameraArea);
+	cameraController_->SetMode(CameraController::Mode::kForcedScroll);
+	cameraController_->SetForcedScrollSpeed(kForcedScrollSpeed);
+	cameraController_->SetForcedScrollStopX(cameraArea.right);
+	camera_.translation_.x = cameraArea.left;
+	camera_.UpdateMatrix();
 }
 
 void GameScene::Update() {
@@ -77,7 +93,7 @@ void GameScene::Update() {
 	ImGui::End();
 
 	debugCamera_->Update();
-	//// �X�v���C�g�̍��W��擾
+
 	// Vector2 position = sprite_->GetPosition();
 	for (const std::vector<KamataEngine::WorldTransform*>& worldTransformBlockRow : worldTransformBlocks_) {
 		for (KamataEngine::WorldTransform* worldTransformBlock : worldTransformBlockRow) {
@@ -88,16 +104,20 @@ void GameScene::Update() {
 			worldTransformBlock->TransferMatrix();
 		}
 	}
-	//// ���W��{2.0f, 1.0f}�ړ�
-	// position.x += 2.0f;
-	// position.y += 1.0f;
 
-	//// �ړ��������W��X�v���C�g�ɔ��f
-	// sprite_->SetPosition(position);
+	if (cameraController_->GetMode() == CameraController::Mode::kForcedScroll) {
+		if (player_->IsDead()) {
+			cameraController_->SetForcedScrollSpeed(0.0f);
+		}
 
-	player_->Update();
-
-	cameraController_->Update();
+		cameraController_->Update();
+		player_->SetScreenLeftLimit(cameraController_->GetLeftEdge());
+		player_->Update();
+	} else {
+		player_->ClearScreenLeftLimit();
+		player_->Update();
+		cameraController_->Update();
+	}
 }
 
 void GameScene::Draw() {
@@ -117,12 +137,20 @@ void GameScene::Draw() {
 	Model::PostDraw();
 }
 
-GameScene::GameScene() { Initialize(); }
+GameScene::GameScene() {}
 
 GameScene::~GameScene() {
+	for (const std::vector<WorldTransform*>& worldTransformBlockRow : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockRow) {
+			delete worldTransformBlock;
+		}
+	}
 	delete debugCamera_;
 	delete model_;
-	sprite_ = nullptr;
+	delete modelBlock_;
+	delete playerModel_;
 	delete player_;
+	delete cameraController_;
 	delete mapChipField_;
+	delete sprite_;
 }
