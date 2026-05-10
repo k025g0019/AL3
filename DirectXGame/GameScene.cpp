@@ -24,9 +24,11 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
+	#ifdef _DEBUG
 	ImGui::Begin("Debug1");
 	ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
 	ImGui::End();
+	#endif
 
 	debugCamera_->Update();
 	//// スプライトの座標を取得
