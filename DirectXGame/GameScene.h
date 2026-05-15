@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CameraController.h"
 #include "DeathParticles.h"
@@ -9,6 +9,7 @@
 #include "MapChipField.h"
 #include "Matrix4x4.h"
 #include "Player.h"
+#include "ShieldEnemy.h"
 
 class GameScene {
 public:
@@ -33,6 +34,7 @@ public:
 
 	Player* player_ = nullptr;
 	std::vector<Enemy*> enemies_;
+	std::vector<ShieldEnemy*> shieldEnemies_;
 	std::vector<HitEffect*> hitEffects_;
 	DeathParticles* deathParticles_ = nullptr;
 	CameraController* cameraController_ = nullptr;
@@ -61,8 +63,7 @@ private:
 	void RemoveDeadEnemies();
 	void RemoveDeadHitEffects();
 
-private:
-	static inline const float kFadeDuration = 1.0f;
+	static constexpr float kFadeDuration = 1.0f;
 	Phase phase_ = Phase::kFadeIn;
 	bool finished_ = false;
 };

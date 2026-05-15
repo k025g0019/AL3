@@ -51,18 +51,18 @@ public:
 	float turnTimer_ = 0.0f;
 	bool onGround_ = true;
 
-	static inline const float kGravity = 9.8f;
-	static inline const float kLimitFallSpeed = 10.0f;
-	static inline const float kJumpAcceleration = 105.0f;
-	static inline const float kTimeTurn = 0.3f;
-	static inline const float kAttenu = 0.1f;
-	static inline const float kLimitRunSpeed = 80.0f;
-	static inline const float kAttenuationLanding = 0.5f;
+	static constexpr float kGravity = 9.8f;
+	static constexpr float kLimitFallSpeed = 10.0f;
+	static constexpr float kJumpAcceleration = 105.0f;
+	static constexpr float kTimeTurn = 0.3f;
+	static constexpr float kAttenu = 0.1f;
+	static constexpr float kLimitRunSpeed = 80.0f;
+	static constexpr float kAttenuationLanding = 0.5f;
 
-	static inline const float kWidth = 2.0f;
-	static inline const float kHeight = 2.0f;
-	static inline const float kBlank = 0.01f;
-	static inline const float kGroundProbeDepth = 0.05f;
+	static constexpr float kWidth = 2.0f;
+	static constexpr float kHeight = 2.0f;
+	static constexpr float kBlank = 0.01f;
+	static constexpr float kGroundProbeDepth = 0.05f;
 
 	Player();
 	~Player();
@@ -108,9 +108,9 @@ public:
 	uint32_t attackParameter_ = 0;
 
 private:
-	static inline const float kDeltaTime = 1.0f / 60.0f;
-	static inline const uint32_t kAttackChargeTime = 10;
-	static inline const uint32_t kAttackDashTime = 8;
-	static inline const uint32_t kAttackRecoveryTime = 12;
-	static inline const float kAttackSpeed = 120.0f;
+	static constexpr float kDeltaTime = 1.0f / 60.0f;
+	static constexpr uint32_t kAttackChargeTime = 10;
+	static constexpr uint32_t kAttackDashTime = 8;
+	static constexpr uint32_t kAttackRecoveryTime = 12;
+	static constexpr float kAttackSpeed = 120.0f;
 };

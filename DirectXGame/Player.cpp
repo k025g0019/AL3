@@ -1,4 +1,4 @@
-﻿//====================
+//====================
 // Player
 //====================
 #include "Player.h"
@@ -10,7 +10,7 @@
 #define NOMINMAX
 
 namespace KamataEngine {
-class Model;
+	class Model;
 }
 
 using namespace KamataEngine;
@@ -23,8 +23,11 @@ Vector3 Add(const Vector3& a, const Vector3& b) {
 	return result;
 }
 
-Player::Player() {}
-Player::~Player() {}
+Player::Player() {
+}
+
+Player::~Player() {
+}
 
 void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	assert(model);
@@ -49,7 +52,7 @@ void Player::BehaviorRootInitialize() {
 }
 
 void Player::BehaviorRootUpdate() {
-	const float deltaTime = kDeltaTime;
+	constexpr float deltaTime = kDeltaTime;
 	bool laning = false;
 
 	if (onGround_) {
@@ -88,8 +91,8 @@ void Player::BehaviorRootUpdate() {
 				float t = 1.0f - (turnTimer_ / kTimeTurn);
 
 				float destinationRotationYTable[]{
-				    std::numbers::pi_v<float> / 2.0f,
-				    std::numbers::pi_v<float> * 3.0f / 2.0f,
+					std::numbers::pi_v<float> / 2.0f,
+					std::numbers::pi_v<float> * 3.0f / 2.0f,
 				};
 
 				float destinationRotationY = destinationRotationYTable[static_cast<int>(lrDirection)];
@@ -99,14 +102,16 @@ void Player::BehaviorRootUpdate() {
 			velocity_.x += acceleration.x * deltaTime;
 			velocity_.y += acceleration.y * deltaTime;
 			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
-		} else {
+		}
+		else {
 			velocity_.x *= (1.0f - kAttenu);
 		}
 
 		if (Input::GetInstance()->PushKey(DIK_UP)) {
 			velocity_.y += kJumpAcceleration;
 		}
-	} else {
+	}
+	else {
 		if (laning) {
 			worldTransform_.translation_.y = 2.0f;
 			velocity_.x *= (1.0f - kAttenu);
@@ -150,7 +155,8 @@ void Player::BehaviorAttackUpdate() {
 	switch (attackPhase_) {
 	case AttackPhase::kCharge:
 	default: {
-		const float t = std::clamp(static_cast<float>(attackParameter_) / static_cast<float>(kAttackChargeTime), 0.0f, 1.0f);
+		const float t = std::clamp(static_cast<float>(attackParameter_) / static_cast<float>(kAttackChargeTime), 0.0f,
+		                           1.0f);
 		worldTransform_.scale_.z = std::lerp(2.0f, 0.6f, t);
 		worldTransform_.scale_.y = std::lerp(2.0f, 1.6f, t);
 		if (attackParameter_++ >= kAttackChargeTime) {
@@ -160,7 +166,8 @@ void Player::BehaviorAttackUpdate() {
 		break;
 	}
 	case AttackPhase::kDash: {
-		const float t = std::clamp(static_cast<float>(attackParameter_) / static_cast<float>(kAttackDashTime), 0.0f, 1.0f);
+		const float t = std::clamp(static_cast<float>(attackParameter_) / static_cast<float>(kAttackDashTime), 0.0f,
+		                           1.0f);
 		worldTransform_.scale_.z = std::lerp(0.6f, 2.2f, t);
 		worldTransform_.scale_.y = std::lerp(1.6f, 1.8f, t);
 		attackVelocity.x = (lrDirection == LRDirection::kRigh ? +1.0f : -1.0f) * kAttackSpeed;
@@ -171,7 +178,8 @@ void Player::BehaviorAttackUpdate() {
 		break;
 	}
 	case AttackPhase::kRecovery: {
-		const float t = std::clamp(static_cast<float>(attackParameter_) / static_cast<float>(kAttackRecoveryTime), 0.0f, 1.0f);
+		const float t = std::clamp(static_cast<float>(attackParameter_) / static_cast<float>(kAttackRecoveryTime), 0.0f,
+		                           1.0f);
 		worldTransform_.scale_.z = std::lerp(2.2f, 2.0f, t);
 		worldTransform_.scale_.y = std::lerp(1.8f, 2.0f, t);
 		if (attackParameter_++ >= kAttackRecoveryTime) {
@@ -194,7 +202,8 @@ void Player::BehaviorAttackUpdate() {
 }
 
 void Player::Update() {
-	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_,
+	                                             worldTransform_.translation_);
 
 	if (behaviorRequest_ != Behavior::kUnknown) {
 		behavior_ = behaviorRequest_;
@@ -220,7 +229,8 @@ void Player::Update() {
 		break;
 	}
 
-	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_,
+	                                             worldTransform_.translation_);
 	worldTransform_.TransferMatrix();
 }
 
@@ -237,10 +247,10 @@ void Player::MapCollisionDetection(CollisionMapInfo& info) {
 
 Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 	Vector3 offsetTable[kNumCorners] = {
-	    {-kWidth / 2.0f, +kHeight / 2.0f, 0.0f},
-	    {+kWidth / 2.0f, +kHeight / 2.0f, 0.0f},
-	    {-kWidth / 2.0f, -kHeight / 2.0f, 0.0f},
-	    {+kWidth / 2.0f, -kHeight / 2.0f, 0.0f},
+		{-kWidth / 2.0f, +kHeight / 2.0f, 0.0f},
+		{+kWidth / 2.0f, +kHeight / 2.0f, 0.0f},
+		{-kWidth / 2.0f, -kHeight / 2.0f, 0.0f},
+		{+kWidth / 2.0f, -kHeight / 2.0f, 0.0f},
 	};
 
 	Vector3 result;
@@ -308,11 +318,15 @@ void Player::MapCollisionDown(CollisionMapInfo& info) {
 	}
 
 	Vector3 landingProbeOffset = {0.0f, -kGroundProbeDepth, 0.0f};
-	MapChipField::IndexSet indexSetLeft = mapChipField_->GetMapChipIndexSetByPosition(Add(positionsNew[kBottomLeft], landingProbeOffset));
-	MapChipField::IndexSet indexSetRight = mapChipField_->GetMapChipIndexSetByPosition(Add(positionsNew[kBottomRight], landingProbeOffset));
+	MapChipField::IndexSet indexSetLeft = mapChipField_->GetMapChipIndexSetByPosition(
+		Add(positionsNew[kBottomLeft], landingProbeOffset));
+	MapChipField::IndexSet indexSetRight = mapChipField_->GetMapChipIndexSetByPosition(
+		Add(positionsNew[kBottomRight], landingProbeOffset));
 
-	bool isHitLeft = mapChipField_->GetMapChipTypeByIndex(indexSetLeft.xIndex, indexSetLeft.yIndex) == MapChipType::kBlock;
-	bool isHitRight = mapChipField_->GetMapChipTypeByIndex(indexSetRight.xIndex, indexSetRight.yIndex) == MapChipType::kBlock;
+	bool isHitLeft = mapChipField_->GetMapChipTypeByIndex(indexSetLeft.xIndex, indexSetLeft.yIndex) ==
+		MapChipType::kBlock;
+	bool isHitRight = mapChipField_->GetMapChipTypeByIndex(indexSetRight.xIndex, indexSetRight.yIndex) ==
+		MapChipType::kBlock;
 	if (!isHitLeft && !isHitRight) {
 		return;
 	}
@@ -347,7 +361,8 @@ void Player::MapCollisionRight(CollisionMapInfo& info) {
 	MapChipField::IndexSet bottomIndex = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kBottomRight]);
 
 	bool hitTop = mapChipField_->GetMapChipTypeByIndex(topIndex.xIndex, topIndex.yIndex) == MapChipType::kBlock;
-	bool hitBottom = mapChipField_->GetMapChipTypeByIndex(bottomIndex.xIndex, bottomIndex.yIndex) == MapChipType::kBlock;
+	bool hitBottom = mapChipField_->GetMapChipTypeByIndex(bottomIndex.xIndex, bottomIndex.yIndex) ==
+		MapChipType::kBlock;
 	if (!hitTop && !hitBottom) {
 		return;
 	}
@@ -383,7 +398,8 @@ void Player::MapCollisionLeft(CollisionMapInfo& info) {
 	MapChipField::IndexSet bottomIndex = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kBottomLeft]);
 
 	bool hitTop = mapChipField_->GetMapChipTypeByIndex(topIndex.xIndex, topIndex.yIndex) == MapChipType::kBlock;
-	bool hitBottom = mapChipField_->GetMapChipTypeByIndex(bottomIndex.xIndex, bottomIndex.yIndex) == MapChipType::kBlock;
+	bool hitBottom = mapChipField_->GetMapChipTypeByIndex(bottomIndex.xIndex, bottomIndex.yIndex) ==
+		MapChipType::kBlock;
 	if (!hitTop && !hitBottom) {
 		return;
 	}
@@ -419,14 +435,17 @@ void Player::groundStateSwiching(const CollisionMapInfo& info) {
 		MapChipField::IndexSet leftIndex = mapChipField_->GetMapChipIndexSetByPosition(leftBottom);
 		MapChipField::IndexSet rightIndex = mapChipField_->GetMapChipIndexSetByPosition(rightBottom);
 		bool hitLeft = mapChipField_->GetMapChipTypeByIndex(leftIndex.xIndex, leftIndex.yIndex) == MapChipType::kBlock;
-		bool hitRight = mapChipField_->GetMapChipTypeByIndex(rightIndex.xIndex, rightIndex.yIndex) == MapChipType::kBlock;
+		bool hitRight = mapChipField_->GetMapChipTypeByIndex(rightIndex.xIndex, rightIndex.yIndex) ==
+			MapChipType::kBlock;
 
 		if (!hitLeft && !hitRight) {
 			onGround_ = false;
-		} else {
+		}
+		else {
 			velocity_.y = 0.0f;
 		}
-	} else {
+	}
+	else {
 		if (info.Landing) {
 			onGround_ = true;
 			velocity_.x *= (1.0f - kAttenuationLanding);
@@ -435,11 +454,11 @@ void Player::groundStateSwiching(const CollisionMapInfo& info) {
 	}
 }
 
-KamataEngine::Vector3 Player::GetWorldPosition() const { return worldTransform_.translation_; }
+Vector3 Player::GetWorldPosition() const { return worldTransform_.translation_; }
 
 AABB Player::GetAABB() const {
 	const Vector3 center = GetWorldPosition();
-	const Vector3 half = {kWidth * 0.5f, kHeight * 0.5f, kWidth * 0.5f};
+	constexpr Vector3 half = {kWidth * 0.5f, kHeight * 0.5f, kWidth * 0.5f};
 
 	AABB aabb;
 	aabb.min = {center.x - half.x, center.y - half.y, center.z - half.z};

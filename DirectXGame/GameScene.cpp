@@ -1,4 +1,4 @@
-﻿//====================
+//====================
 // GameScene
 //====================
 #include "GameScene.h"
@@ -8,8 +8,8 @@
 using namespace KamataEngine;
 
 void GameScene::GenerateBlocks() {
-	const uint32_t kNumBlockVertical = 20;
-	const uint32_t kNumBlockHorizontal = 100;
+	constexpr uint32_t kNumBlockVertical = 20;
+	constexpr uint32_t kNumBlockHorizontal = 100;
 
 	worldTransformBlocks_.resize(kNumBlockVertical);
 	for (uint32_t i = 0; i < kNumBlockVertical; i++) {
@@ -56,13 +56,22 @@ void GameScene::Initialize() {
 	player_->Initialize(playerModel_, &camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	const int32_t kEnemyCount = 3;
+	constexpr int32_t kEnemyCount = 3;
 	for (int32_t i = 0; i < kEnemyCount; ++i) {
-		Enemy* newEnemy = new Enemy();
+		auto newEnemy = new Enemy();
 		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(12 + static_cast<uint32_t>(i) * 8, 18);
 		newEnemy->Initialize(playerModel_, &camera_, enemyPosition);
 		newEnemy->SetGameScene(this);
 		enemies_.push_back(newEnemy);
+	}
+
+	constexpr int32_t kShieldEnemyCount = 3;
+	for (int32_t i = 0; i < kShieldEnemyCount; ++i) {
+		auto shieldEnemy = new ShieldEnemy();
+		Vector3 shieldEnemyPosition = mapChipField_->GetMapChipPositionByIndex(20 + static_cast<uint32_t>(i) * 8, 22);
+		shieldEnemy->Initialize(playerModel_, &camera_, shieldEnemyPosition);
+		shieldEnemy->SetGameScene(this);
+		shieldEnemies_.push_back(shieldEnemy);
 	}
 
 	cameraController_ = new CameraController();
@@ -82,12 +91,14 @@ void GameScene::Initialize() {
 }
 
 void GameScene::UpdateBlockMatrices() {
-	for (const std::vector<KamataEngine::WorldTransform*>& worldTransformBlockRow : worldTransformBlocks_) {
-		for (KamataEngine::WorldTransform* worldTransformBlock : worldTransformBlockRow) {
+	for (const std::vector<WorldTransform*>& worldTransformBlockRow : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockRow) {
 			if (!worldTransformBlock) {
 				continue;
 			}
-			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_,
+			                                                  worldTransformBlock->rotation_,
+			                                                  worldTransformBlock->translation_);
 			worldTransformBlock->TransferMatrix();
 		}
 	}
@@ -101,6 +112,9 @@ void GameScene::UpdatePlayPhase() {
 	for (HitEffect* hitEffect : hitEffects_) {
 		hitEffect->Update();
 	}
+	for (ShieldEnemy* shieldEnemy : shieldEnemies_) {
+		shieldEnemy->Update();
+	}
 	RemoveDeadEnemies();
 	RemoveDeadHitEffects();
 	CheckAllCollisions();
@@ -112,6 +126,10 @@ void GameScene::UpdatePlayPhase() {
 void GameScene::UpdateDeathPhase() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
+	}
+
+	for (ShieldEnemy* shieldEnemy : shieldEnemies_) {
+		shieldEnemy->Update();
 	}
 	for (HitEffect* hitEffect : hitEffects_) {
 		hitEffect->Update();
@@ -179,6 +197,11 @@ void GameScene::Draw() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
+
+	for (ShieldEnemy* shieldEnemy : shieldEnemies_) {
+		shieldEnemy->Draw();
+	}
+
 	for (HitEffect* hitEffect : hitEffects_) {
 		hitEffect->Draw();
 	}
@@ -206,8 +229,8 @@ void GameScene::Draw() {
 GameScene::GameScene() = default;
 
 GameScene::~GameScene() {
-	for (std::vector<KamataEngine::WorldTransform*>& row : worldTransformBlocks_) {
-		for (KamataEngine::WorldTransform*& block : row) {
+	for (std::vector<WorldTransform*>& row : worldTransformBlocks_) {
+		for (WorldTransform*& block : row) {
 			delete block;
 			block = nullptr;
 		}
@@ -223,7 +246,14 @@ GameScene::~GameScene() {
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
+
 	enemies_.clear();
+
+	for (ShieldEnemy* shieldEnemy : shieldEnemies_) {
+		delete shieldEnemy;
+	}
+	shieldEnemies_.clear();
+
 	for (HitEffect* hitEffect : hitEffects_) {
 		delete hitEffect;
 	}
@@ -283,7 +313,7 @@ void GameScene::RemoveDeadEnemies() {
 	enemies_.erase(erasedBegin, enemies_.end());
 }
 
-void GameScene::CreateHitEffect(const KamataEngine::Vector3& position) {
+void GameScene::CreateHitEffect(const Vector3& position) {
 	HitEffect* newHitEffect = HitEffect::Create(position);
 	hitEffects_.push_back(newHitEffect);
 }

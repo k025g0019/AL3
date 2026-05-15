@@ -1,4 +1,4 @@
-#include "Enemy.h"
+#include "ShieldEnemy.h"
 
 #include <algorithm>
 #include <cassert>
@@ -10,13 +10,13 @@
 
 using namespace KamataEngine;
 
-Enemy::Enemy() {
+ShieldEnemy::ShieldEnemy() {
 }
 
-Enemy::~Enemy() {
+ShieldEnemy::~ShieldEnemy() {
 }
 
-void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
+void ShieldEnemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	assert(model);
 	assert(camera);
 
@@ -37,13 +37,13 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	behaviorRequest_ = Behavior::kUnknown;
 }
 
-void Enemy::BehaviorWalkInitialize() {
+void ShieldEnemy::BehaviorWalkInitialize() {
 	velocity_.x = -kWalSpeed;
 	walkTimer_ = 0.0f;
 	worldTransform_.scale_ = {2.0f, 2.0f, 2.0f};
 }
 
-void Enemy::BehaviorWalkUpdate() {
+void ShieldEnemy::BehaviorWalkUpdate() {
 	worldTransform_.translation_.x += velocity_.x;
 	walkTimer_ += (1.0f / 60.0f);
 
@@ -57,12 +57,12 @@ void Enemy::BehaviorWalkUpdate() {
 	worldTransform_.rotation_.z = 0.0f;
 }
 
-void Enemy::BehaviorDeadInitialize() {
+void ShieldEnemy::BehaviorDeadInitialize() {
 	isCollisionDisabled_ = true;
 	deathTimer_ = 0.0f;
 }
 
-void Enemy::BehaviorDeadUpdate() {
+void ShieldEnemy::BehaviorDeadUpdate() {
 	deathTimer_ += (1.0f / 60.0f);
 	const float t = std::clamp(deathTimer_ / kDeathDuration, 0.0f, 1.0f);
 
@@ -80,7 +80,7 @@ void Enemy::BehaviorDeadUpdate() {
 	}
 }
 
-void Enemy::Update() {
+void ShieldEnemy::Update() {
 	if (behaviorRequest_ != Behavior::kUnknown) {
 		behavior_ = behaviorRequest_;
 		switch (behavior_) {
@@ -110,11 +110,11 @@ void Enemy::Update() {
 	worldTransform_.TransferMatrix();
 }
 
-void Enemy::Draw() { model_->Draw(worldTransform_, *camera_); }
+void ShieldEnemy::Draw() { model_->Draw(worldTransform_, *camera_); }
 
-Vector3 Enemy::GetWorldPosition() const { return worldTransform_.translation_; }
+Vector3 ShieldEnemy::GetWorldPosition() const { return worldTransform_.translation_; }
 
-AABB Enemy::GetAABB() const {
+AABB ShieldEnemy::GetAABB() const {
 	const Vector3 center = GetWorldPosition();
 	constexpr Vector3 half = {kWidth * 0.5f, kHeight * 0.5f, kWidth * 0.5f};
 
@@ -124,7 +124,7 @@ AABB Enemy::GetAABB() const {
 	return aabb;
 }
 
-void Enemy::OnCollision(const Player* player) {
+void ShieldEnemy::OnCollision(const Player* player) {
 	if (behavior_ == Behavior::kDead) {
 		return;
 	}
@@ -132,12 +132,12 @@ void Enemy::OnCollision(const Player* player) {
 	if (player && player->IsAttack()) {
 		behaviorRequest_ = Behavior::kDead;
 		if (gameScene_) {
-			const Vector3 enemyPos = GetWorldPosition();
+			const Vector3 ShieldEnemyPos = GetWorldPosition();
 			const Vector3 playerPos = player->GetWorldPosition();
 			Vector3 effectPos = {
-				(enemyPos.x + playerPos.x) * 0.5f,
-				(enemyPos.y + playerPos.y) * 0.5f,
-				(enemyPos.z + playerPos.z) * 0.5f,
+				(ShieldEnemyPos.x + playerPos.x) * 0.5f,
+				(ShieldEnemyPos.y + playerPos.y) * 0.5f,
+				(ShieldEnemyPos.z + playerPos.z) * 0.5f,
 			};
 			gameScene_->CreateHitEffect(effectPos);
 		}

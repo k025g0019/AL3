@@ -172,6 +172,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapChipField.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="ShieldEnemy.cpp" />
     <ClCompile Include="TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -281,6 +282,7 @@
     <ClInclude Include="MapChipField.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="ShieldEnemy.h" />
     <ClInclude Include="TitleScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

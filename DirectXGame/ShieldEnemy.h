@@ -8,7 +8,7 @@
 class Player;
 class GameScene;
 
-class Enemy {
+class ShieldEnemy {
 public:
 	enum class Behavior {
 		kUnknown,
@@ -27,8 +27,8 @@ public:
 	static constexpr float kWidth = 2.0f;
 	static constexpr float kHeight = 2.0f;
 
-	Enemy();
-	~Enemy();
+	ShieldEnemy();
+	~ShieldEnemy();
 
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 	void Update();
