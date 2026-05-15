@@ -2,9 +2,9 @@
 #include "KamataEngine.h"
 
 class GameScene {
-
 public:
 	uint32_t textureHandle_ = 0; // テクスチャハンドル
+	uint32_t soundDataHandle_ = 0;
 
 	// 3Dモデルのハンドル
 	KamataEngine::Model* model_ = nullptr;
@@ -17,9 +17,8 @@ public:
 	KamataEngine::Camera camera_;
 
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
-
-
-	
+	KamataEngine::Vector2 spriteVelocity_ = {2.0f, 1.0f};
+	bool isInitialized_ = false;
 
 	GameScene();
 
