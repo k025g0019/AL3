@@ -2,7 +2,7 @@
 
 using namespace KamataEngine;
 
-// CSV縺ｮ繝槭ャ繝玲ュ蝣ｱ繧貞・縺ｫ繝悶Ο繝・け縺ｮ繝ｯ繝ｼ繝ｫ繝芽｡悟・繧堤函謌・
+// CSVからブロック配置を生成
 void GameScene::GenerateBlocks() {
 	uint32_t kNumBlockVertical = 20;
 	uint32_t kNumBlockHorizontal = 100;
@@ -25,7 +25,7 @@ void GameScene::GenerateBlocks() {
 	}
 }
 
-// 繧ｷ繝ｼ繝ｳ蛻晄悄蛹・
+// 初期化
 void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	playerModel_ = Model::CreateFromOBJ("player", true);
@@ -40,7 +40,7 @@ void GameScene::Initialize() {
 	mapChipField_ = new MapChipField;
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 
-	// 繝・ヰ繝・げ逕ｨ霆ｸ繧定｡ｨ遉ｺ
+	// 取得関数を呼び出して、シングルトンインスタンスを生成しておく
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 
@@ -51,7 +51,7 @@ void GameScene::Initialize() {
 	player_->Initialize(playerModel_, &camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// 繧ｫ繝｡繝ｩ霑ｽ蠕薙さ繝ｳ繝医Ο繝ｼ繝ｩ
+	// カメラコントローラーの初期化
 	cameraController_ = new CameraController();
 	cameraController_->SetCamera(&camera_);
 	cameraController_->Initialize();
@@ -59,7 +59,7 @@ void GameScene::Initialize() {
 	cameraController_->Reset();
 }
 
-// 繧ｷ繝ｼ繝ｳ譖ｴ譁ｰ
+// 更新処理
 void GameScene::Update() {
 	ImGui::Begin("Debug1");
 	ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
@@ -67,13 +67,15 @@ void GameScene::Update() {
 
 	debugCamera_->Update();
 
-	// 繝悶Ο繝・け陦悟・譖ｴ譁ｰ
-	for (const std::vector<KamataEngine::WorldTransform*>& worldTransformBlockRow : worldTransformBlocks_) {
-		for (KamataEngine::WorldTransform* worldTransformBlock : worldTransformBlockRow) {
+	// ワールド変換行列の更新
+	for (const std::vector<WorldTransform*>& worldTransformBlockRow : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockRow) {
 			if (!worldTransformBlock) {
 				continue;
 			}
-			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_,
+			                                                  worldTransformBlock->rotation_,
+			                                                  worldTransformBlock->translation_);
 			worldTransformBlock->TransferMatrix();
 		}
 	}
@@ -82,7 +84,7 @@ void GameScene::Update() {
 	cameraController_->Update();
 }
 
-// 繧ｷ繝ｼ繝ｳ謠冗判
+// 描画処理
 void GameScene::Draw() {
 	Model::PreDraw();
 	player_->Draw();
