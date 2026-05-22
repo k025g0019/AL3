@@ -1,0 +1,92 @@
+# Blender 5.0.1 MTL File: 'Enemy.blend'
+# www.blender.org
+
+newmtl Material.003
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Shield_baked.png
+
+newmtl darker_segmented_steel_rim.001
+Ns 608.399963
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd Shield_baked.png
+
+newmtl fine_scratches_and_scuffs.001
+Ns 409.599976
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd Shield_baked.png
+
+newmtl flat_painted_deep_red_cross.001
+Ns 843.057861
+Ka 0.663636 0.663636 0.663636
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.600000
+illum 3
+map_Kd Shield_baked.png
+map_d Shield_baked.png
+
+newmtl rear_dark_brown_leather.001
+Ns 115.599983
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Shield_baked.png
+
+newmtl rear_dark_wood_core.001
+Ns 176.400024
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Shield_baked.png
+
+newmtl seated_polished_rivets.001
+Ns 688.899963
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd Shield_baked.png
+
+newmtl smooth_pale_blue_steel.001
+Ns 577.599976
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd Shield_baked.png
+
+newmtl thin_dark_recessed_lines.001
+Ns 202.500000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Shield_baked.png

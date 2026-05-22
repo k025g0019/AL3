@@ -31,7 +31,7 @@ void GameScene::GenerateBlocks() {
 
 void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("mario.jpg");
-	playerModel_ = Model::CreateFromOBJ("player", true);
+	playerModel_ = Model::CreateFromOBJ("Shield_BakedTexture", true);
 	model_ = Model::Create();
 	modelBlock_ = Model::CreateFromOBJ("block", true);
 	hitEffectModel_ = Model::CreateFromOBJ("cube", true);
@@ -68,7 +68,7 @@ void GameScene::Initialize() {
 	constexpr int32_t kShieldEnemyCount = 3;
 	for (int32_t i = 0; i < kShieldEnemyCount; ++i) {
 		auto shieldEnemy = new ShieldEnemy();
-		Vector3 shieldEnemyPosition = mapChipField_->GetMapChipPositionByIndex(20 + static_cast<uint32_t>(i) * 8, 22);
+		Vector3 shieldEnemyPosition = mapChipField_->GetMapChipPositionByIndex(20 + static_cast<uint32_t>(i) * 8, 16);
 		shieldEnemy->Initialize(playerModel_, &camera_, shieldEnemyPosition);
 		shieldEnemy->SetGameScene(this);
 		shieldEnemies_.push_back(shieldEnemy);
