@@ -4,6 +4,7 @@
 #include "Player.h"
 
 #include <algorithm>
+#include <array>
 #include <numbers>
 
 #include "MapChipField.h"
@@ -312,35 +313,70 @@ void Player::MapCollisionDown(CollisionMapInfo& info) {
 		return;
 	}
 
+	std::array<Vector3, 4> positionsNow;
 	std::array<Vector3, 4> positionsNew;
-	for (uint32_t i = 0; i < positionsNew.size(); i++) {
+	for (uint32_t i = 0; i < positionsNow.size(); i++) {
+		positionsNow[i] = CornerPosition(worldTransform_.translation_, static_cast<Corner>(i));
 		positionsNew[i] = CornerPosition(Add(worldTransform_.translation_, info.movement), static_cast<Corner>(i));
 	}
 
-	Vector3 landingProbeOffset = {0.0f, -kGroundProbeDepth, 0.0f};
-	MapChipField::IndexSet indexSetLeft = mapChipField_->GetMapChipIndexSetByPosition(
-		Add(positionsNew[kBottomLeft], landingProbeOffset));
-	MapChipField::IndexSet indexSetRight = mapChipField_->GetMapChipIndexSetByPosition(
-		Add(positionsNew[kBottomRight], landingProbeOffset));
+	float yMoveToLand = info.movement.y;
+	const float playerBottom = worldTransform_.translation_.y - kHeight / 2.0f;
+	bool hit = false;
 
-	bool isHitLeft = mapChipField_->GetMapChipTypeByIndex(indexSetLeft.xIndex, indexSetLeft.yIndex) ==
-		MapChipType::kBlock;
-	bool isHitRight = mapChipField_->GetMapChipTypeByIndex(indexSetRight.xIndex, indexSetRight.yIndex) ==
-		MapChipType::kBlock;
+	bool isHitLeft = mapChipField_->GetMapChipTypeByIndex(indexSetLeft.xIndex, indexSetLeft.yIndex) == MapChipType::kBlock;
+	bool isHitRight = mapChipField_->GetMapChipTypeByIndex(indexSetRight.xIndex, indexSetRight.yIndex) == MapChipType::kBlock;
 	if (!isHitLeft && !isHitRight) {
 		return;
 	}
 
-	float playerBottom = worldTransform_.translation_.y - kHeight / 2.0f;
-	float yMoveToLand = info.movement.y;
+			const uint32_t candidateX = static_cast<uint32_t>(xIndex);
+			if (mapChipField_->GetMapChipTypeByIndex(candidateX, yIndex) != MapChipType::kBlock) {
+				return false;
+			}
 
-	if (isHitLeft) {
-		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSetLeft.xIndex, indexSetLeft.yIndex);
-		yMoveToLand = (std::max)(yMoveToLand, rect.top - playerBottom + kBlank);
-	}
-	if (isHitRight) {
-		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSetRight.xIndex, indexSetRight.yIndex);
-		yMoveToLand = (std::max)(yMoveToLand, rect.top - playerBottom + kBlank);
+			const MapChipField::Rect rect = mapChipField_->GetRectByIndex(candidateX, yIndex);
+			if (currentCorner.y < rect.top || rect.top < nextCorner.y) {
+				return false;
+			}
+
+			yMoveToLand = (std::max)(yMoveToLand, rect.top - playerBottom + kBlank);
+			hit = true;
+			return true;
+		};
+
+	auto CheckLanding = [&](Corner corner, int32_t adjacentXOffset) {
+		const Vector3& currentCorner = positionsNow[corner];
+		const Vector3& nextCorner = positionsNew[corner];
+
+		const MapChipField::IndexSet currentIndex = mapChipField_->GetMapChipIndexSetByPosition(currentCorner);
+		const MapChipField::IndexSet nextIndex = mapChipField_->GetMapChipIndexSetByPosition(nextCorner);
+
+		// 下方向にセル境界をまたいだときだけ着地を判定する。
+		if (currentIndex.yIndex == nextIndex.yIndex) {
+			return;
+		}
+
+		if (TryLandingCandidate(static_cast<int32_t>(nextIndex.xIndex), nextIndex.yIndex, currentCorner, nextCorner)) {
+			return;
+		}
+		if (TryLandingCandidate(static_cast<int32_t>(nextIndex.xIndex) + adjacentXOffset, nextIndex.yIndex,
+		                        currentCorner, nextCorner)) {
+			return;
+		}
+		if (TryLandingCandidate(static_cast<int32_t>(nextIndex.xIndex), nextIndex.yIndex + 1, currentCorner,
+		                        nextCorner)) {
+			return;
+		}
+		TryLandingCandidate(static_cast<int32_t>(nextIndex.xIndex) + adjacentXOffset, nextIndex.yIndex + 1,
+		                    currentCorner, nextCorner);
+	};
+
+	CheckLanding(kBottomLeft, +1);
+	CheckLanding(kBottomRight, -1);
+
+	if (!hit) {
+		return;
 	}
 
 	info.movement.y = yMoveToLand;
