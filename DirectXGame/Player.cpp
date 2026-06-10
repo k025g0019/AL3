@@ -205,7 +205,10 @@ void Player::BehaviorAttackUpdate() {
 void Player::Update() {
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_,
 	                                             worldTransform_.translation_);
-
+	if (isKnockBackRequested_) {
+		behaviorRequest_ = Behavior::kKnockBack;
+		isKnockBackRequested_ = false;
+	}
 	if (behaviorRequest_ != Behavior::kUnknown) {
 		behavior_ = behaviorRequest_;
 		switch (behavior_) {
@@ -215,6 +218,9 @@ void Player::Update() {
 			break;
 		case Behavior::kAttack:
 			BehaviorAttackInitialize();
+			break;
+		case Behavior::kKnockBack:
+			BehaviorKnockBackInitialize();
 			break;
 		}
 		behaviorRequest_ = Behavior::kUnknown;
@@ -227,6 +233,9 @@ void Player::Update() {
 		break;
 	case Behavior::kAttack:
 		BehaviorAttackUpdate();
+		break;
+	case Behavior::kKnockBack:
+		BehaviorKnockBackUpdate();
 		break;
 	}
 
@@ -324,26 +333,26 @@ void Player::MapCollisionDown(CollisionMapInfo& info) {
 	const float playerBottom = worldTransform_.translation_.y - kHeight / 2.0f;
 	bool hit = false;
 
-	bool isHitLeft = mapChipField_->GetMapChipTypeByIndex(indexSetLeft.xIndex, indexSetLeft.yIndex) == MapChipType::kBlock;
-	bool isHitRight = mapChipField_->GetMapChipTypeByIndex(indexSetRight.xIndex, indexSetRight.yIndex) == MapChipType::kBlock;
-	if (!isHitLeft && !isHitRight) {
-		return;
-	}
+	auto TryLandingCandidate = [&](int32_t xIndex, uint32_t yIndex, const Vector3& currentCorner,
+	                               const Vector3& nextCorner) {
+		if (xIndex < 0) {
+			return false;
+		}
 
-			const uint32_t candidateX = static_cast<uint32_t>(xIndex);
-			if (mapChipField_->GetMapChipTypeByIndex(candidateX, yIndex) != MapChipType::kBlock) {
-				return false;
-			}
+		const uint32_t candidateX = static_cast<uint32_t>(xIndex);
+		if (mapChipField_->GetMapChipTypeByIndex(candidateX, yIndex) != MapChipType::kBlock) {
+			return false;
+		}
 
-			const MapChipField::Rect rect = mapChipField_->GetRectByIndex(candidateX, yIndex);
-			if (currentCorner.y < rect.top || rect.top < nextCorner.y) {
-				return false;
-			}
+		const MapChipField::Rect rect = mapChipField_->GetRectByIndex(candidateX, yIndex);
+		if (currentCorner.y < rect.top || rect.top < nextCorner.y) {
+			return false;
+		}
 
-			yMoveToLand = (std::max)(yMoveToLand, rect.top - playerBottom + kBlank);
-			hit = true;
-			return true;
-		};
+		yMoveToLand = (std::max)(yMoveToLand, rect.top - playerBottom + kBlank);
+		hit = true;
+		return true;
+	};
 
 	auto CheckLanding = [&](Corner corner, int32_t adjacentXOffset) {
 		const Vector3& currentCorner = positionsNow[corner];
@@ -502,10 +511,47 @@ AABB Player::GetAABB() const {
 	return aabb;
 }
 
-void Player::OnCollision(const Enemy* enemy) {
+void Player::EnemyOnCollision(const Enemy* enemy) {
 	(void)enemy;
 	if (IsAttack()) {
 		return;
 	}
 	isDead_ = true;
+}
+
+void Player::ShieldEnemyOnCollision(const ShieldEnemy* shieldEnemy) {
+	(void)shieldEnemy;
+	if (IsAttack()) {
+		return;
+	}
+	isDead_ = true;
+}
+
+void Player::RequestKnockBack() { isKnockBackRequested_ = true; }
+
+void Player::BehaviorKnockBackInitialize() {
+	attackParameter_ = 0;
+	velocity_.x = 0.0f;
+}
+
+void Player::BehaviorKnockBackUpdate() {
+	attackParameter_++;
+
+	Vector3 knockBackVelocity{};
+
+	knockBackVelocity.x = (lrDirection == LRDirection::kRigh ? -1.0f : 1.0f) * kAttackSpeed;
+
+	CollisionMapInfo collisionMapInfo{};
+	collisionMapInfo.movement.x = knockBackVelocity.x * kDeltaTime;
+	collisionMapInfo.movement.y = velocity_.y * kDeltaTime;
+	collisionMapInfo.movement.z = 0.0f;
+
+	MapCollisionDetection(collisionMapInfo);
+	ApplyCollision(collisionMapInfo);
+	ProcessCeilingHit(collisionMapInfo);
+	groundStateSwiching(collisionMapInfo);
+
+	if (attackParameter_ >= kAttackRecoveryTime) {
+		behaviorRequest_ = Behavior::kRoot;
+	}
 }

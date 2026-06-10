@@ -1,0 +1,13 @@
+C:\kogakuin\ziko\konnto\konnto\main.cpp;C:\kogakuin\ziko\konnto\konnto\x64\Release\main.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\core.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\core.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\descriptor.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\descriptor.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\hotplug.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\hotplug.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\io.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\io.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\strerror.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\strerror.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\sync.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\sync.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\os\events_windows.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\events_windows.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\os\threads_windows.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\threads_windows.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\os\windows_common.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\windows_common.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\os\windows_usbdk.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\windows_usbdk.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\libusb\libusb\os\windows_winusb.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\windows_winusb.obj
+C:\kogakuin\ziko\konnto\konnto\third_party\hidapi\windows\hid.c;C:\kogakuin\ziko\konnto\konnto\x64\Release\hid.obj

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "AABB.h"
 #include "KamataEngine.h"
@@ -6,6 +6,8 @@
 
 #include <3d/WorldTransform.h>
 
+#include  "Enemy.h"
+#include "ShieldEnemy.h"
 class Enemy;
 class MapChipField;
 
@@ -23,6 +25,7 @@ public:
 		kUnknown,
 		kRoot,
 		kAttack,
+		kKnockBack,
 	};
 
 	enum class AttackPhase {
@@ -70,7 +73,8 @@ public:
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 	void Update();
 	void Draw();
-
+	void BehaviorKnockBackInitialize();
+	void BehaviorKnockBackUpdate();
 	void BehaviorRootInitialize();
 	void BehaviorRootUpdate();
 	void BehaviorAttackInitialize();
@@ -91,11 +95,12 @@ public:
 	void ApplyCollision(const CollisionMapInfo& info);
 	void ProcessCeilingHit(const CollisionMapInfo& info);
 	void groundStateSwiching(const CollisionMapInfo& info);
+	void RequestKnockBack();
 
 	KamataEngine::Vector3 GetWorldPosition() const;
 	AABB GetAABB() const;
-	void OnCollision(const Enemy* enemy);
-
+	void EnemyOnCollision(const Enemy* enemy);
+	void ShieldEnemyOnCollision(const ShieldEnemy* shieldEnemy);
 	KamataEngine::WorldTransform worldTransform_;
 	KamataEngine::Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0;
@@ -107,10 +112,13 @@ public:
 	AttackPhase attackPhase_ = AttackPhase::kCharge;
 	uint32_t attackParameter_ = 0;
 
+	LRDirection GettrLR() const { return lrDirection; }
+
 private:
 	static constexpr float kDeltaTime = 1.0f / 60.0f;
 	static constexpr uint32_t kAttackChargeTime = 10;
 	static constexpr uint32_t kAttackDashTime = 8;
 	static constexpr uint32_t kAttackRecoveryTime = 12;
 	static constexpr float kAttackSpeed = 120.0f;
+	bool isKnockBackRequested_ = false;
 };

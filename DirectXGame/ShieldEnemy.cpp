@@ -7,7 +7,7 @@
 
 #include "GameScene.h"
 #include "Player.h"
-
+Player::LRDirection PlayerLR;
 using namespace KamataEngine;
 
 ShieldEnemy::ShieldEnemy() {
@@ -51,9 +51,10 @@ void ShieldEnemy::BehaviorWalkUpdate() {
 	float t = (param + 1.0f) * 0.5f;
 	float degree = kWalkMotionAngleStart + (kWalkMotionAngleEnd - kWalkMotionAngleStart) * t;
 	float rad = degree * (std::numbers::pi_v<float> / 180.0f);
-
-	worldTransform_.rotation_.x = rad;
-	worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
+	(void)rad;
+	//worldTransform_.rotation_.x = std::numbers::pi_v<float> * 3.0f / 2.0f;
+	worldTransform_.rotation_.x = 0;
+	worldTransform_.rotation_.y = -std::numbers::pi_v<float> / 2.0f + rad;
 	worldTransform_.rotation_.z = 0.0f;
 }
 
@@ -124,22 +125,33 @@ AABB ShieldEnemy::GetAABB() const {
 	return aabb;
 }
 
-void ShieldEnemy::OnCollision(const Player* player) {
+void ShieldEnemy::OnCollision(Player* player) {
 	if (behavior_ == Behavior::kDead) {
 		return;
 	}
 
 	if (player && player->IsAttack()) {
-		behaviorRequest_ = Behavior::kDead;
-		if (gameScene_) {
-			const Vector3 ShieldEnemyPos = GetWorldPosition();
-			const Vector3 playerPos = player->GetWorldPosition();
-			Vector3 effectPos = {
-				(ShieldEnemyPos.x + playerPos.x) * 0.5f,
-				(ShieldEnemyPos.y + playerPos.y) * 0.5f,
-				(ShieldEnemyPos.z + playerPos.z) * 0.5f,
-			};
-			gameScene_->CreateHitEffect(effectPos);
+		PlayerLR = player->GettrLR();
+		if ((PlayerLR == Player::LRDirection::kRigh && worldTransform_.rotation_.y <= 0) || (PlayerLR ==
+			Player::LRDirection::KLeft && worldTransform_.rotation_.y >= 0)) {
+			if (gameScene_) {
+				const Vector3 ShieldEnemyPos = GetWorldPosition();
+				const Vector3 playerPos = player->GetWorldPosition();
+				Vector3 effectPos = {
+					(ShieldEnemyPos.x + playerPos.x) * 0.5f,
+					(ShieldEnemyPos.y + playerPos.y) * 0.5f,
+					(ShieldEnemyPos.z + playerPos.z) * 0.5f,
+				};
+				Vector3 guneffectPos = {
+					(worldTransform_.translation_.x + player->GetWorldPosition().x) * 0.5f,
+					(worldTransform_.translation_.y + player->GetWorldPosition().y) * 0.5f,
+					(worldTransform_.translation_.z + player->GetWorldPosition().z) * 0.5f,
+				};
+				gameScene_->CreateGunEffect(guneffectPos);
+				player->RequestKnockBack();
+			}
+			return;
 		}
+		behaviorRequest_ = Behavior::kDead;
 	}
 }

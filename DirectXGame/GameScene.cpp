@@ -31,17 +31,20 @@ void GameScene::GenerateBlocks() {
 
 void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("mario.jpg");
-	playerModel_ = Model::CreateFromOBJ("Shield_BakedTexture", true);
+	playerModel_ = Model::CreateFromOBJ("player", true);
 	model_ = Model::Create();
 	modelBlock_ = Model::CreateFromOBJ("block", true);
-	hitEffectModel_ = Model::CreateFromOBJ("cube", true);
-
+	HitEffectModel_ = Model::CreateFromOBJ("hit_effect", true);
+	modelEnemy_ = Model::CreateFromOBJ("enemy", true);
+	modelShieldEnemy_ = Model::CreateFromOBJ("shieldEnemy", true);
+	guardEffectModel_ = Model::CreateFromOBJ("ring", true);
 	worldTransform_.Initialize();
 	camera_.Initialize();
 	PrimitiveDrawer::GetInstance()->SetCamera(&camera_);
-	HitEffect::SetModel(hitEffectModel_);
+	HitEffect::SetModel(HitEffectModel_);
 	HitEffect::SetCamera(&camera_);
-
+	GuardEffect::SetModel(guardEffectModel_);
+	GuardEffect::SetCamera(&camera_);
 	debugCamera_ = new DebugCamera(1280, 720);
 	mapChipField_ = new MapChipField;
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
@@ -60,7 +63,7 @@ void GameScene::Initialize() {
 	for (int32_t i = 0; i < kEnemyCount; ++i) {
 		auto newEnemy = new Enemy();
 		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(12 + static_cast<uint32_t>(i) * 8, 18);
-		newEnemy->Initialize(playerModel_, &camera_, enemyPosition);
+		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
 		newEnemy->SetGameScene(this);
 		enemies_.push_back(newEnemy);
 	}
@@ -69,7 +72,7 @@ void GameScene::Initialize() {
 	for (int32_t i = 0; i < kShieldEnemyCount; ++i) {
 		auto shieldEnemy = new ShieldEnemy();
 		Vector3 shieldEnemyPosition = mapChipField_->GetMapChipPositionByIndex(20 + static_cast<uint32_t>(i) * 8, 16);
-		shieldEnemy->Initialize(playerModel_, &camera_, shieldEnemyPosition);
+		shieldEnemy->Initialize(modelShieldEnemy_, &camera_, shieldEnemyPosition);
 		shieldEnemy->SetGameScene(this);
 		shieldEnemies_.push_back(shieldEnemy);
 	}
@@ -109,14 +112,18 @@ void GameScene::UpdatePlayPhase() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
-	for (HitEffect* hitEffect : hitEffects_) {
-		hitEffect->Update();
+	for (HitEffect* HitEffect : HitEffects_) {
+		HitEffect->Update();
 	}
 	for (ShieldEnemy* shieldEnemy : shieldEnemies_) {
 		shieldEnemy->Update();
 	}
+	for (GuardEffect* guardEffect : guardEffects_) {
+		guardEffect->Update();
+	}
 	RemoveDeadEnemies();
 	RemoveDeadHitEffects();
+	RemoveDeadShieldEnemies();
 	CheckAllCollisions();
 	cameraController_->Update();
 
@@ -131,8 +138,11 @@ void GameScene::UpdateDeathPhase() {
 	for (ShieldEnemy* shieldEnemy : shieldEnemies_) {
 		shieldEnemy->Update();
 	}
-	for (HitEffect* hitEffect : hitEffects_) {
-		hitEffect->Update();
+	for (HitEffect* HitEffect : HitEffects_) {
+		HitEffect->Update();
+	}
+	for (GuardEffect* guardEffect : guardEffects_) {
+		guardEffect->Update();
 	}
 	RemoveDeadEnemies();
 	RemoveDeadHitEffects();
@@ -202,10 +212,13 @@ void GameScene::Draw() {
 		shieldEnemy->Draw();
 	}
 
-	for (HitEffect* hitEffect : hitEffects_) {
-		hitEffect->Draw();
+	for (HitEffect* HitEffect : HitEffects_) {
+		HitEffect->Draw();
 	}
 
+	for (GuardEffect* guardEffect : guardEffects_) {
+		guardEffect->Draw();
+	}
 	if (deathParticles_) {
 		deathParticles_->Draw();
 	}
@@ -254,11 +267,14 @@ GameScene::~GameScene() {
 	}
 	shieldEnemies_.clear();
 
-	for (HitEffect* hitEffect : hitEffects_) {
-		delete hitEffect;
+	for (HitEffect* HitEffect : HitEffects_) {
+		delete HitEffect;
 	}
-	hitEffects_.clear();
-
+	HitEffects_.clear();
+	for (GuardEffect* guardEffect : guardEffects_) {
+		delete guardEffect;
+	}
+	guardEffects_.clear();
 	delete deathParticles_;
 	deathParticles_ = nullptr;
 
@@ -279,8 +295,8 @@ GameScene::~GameScene() {
 
 	delete playerModel_;
 	playerModel_ = nullptr;
-	delete hitEffectModel_;
-	hitEffectModel_ = nullptr;
+	delete HitEffectModel_;
+	HitEffectModel_ = nullptr;
 
 	delete fade_;
 	fade_ = nullptr;
@@ -296,8 +312,20 @@ void GameScene::CheckAllCollisions() {
 		const AABB enemyAABB = enemy->GetAABB();
 		const bool isHit = IsAABBCollision(playerAABB, enemyAABB);
 		if (isHit) {
-			player_->OnCollision(enemy);
+			player_->EnemyOnCollision(enemy);
 			enemy->OnCollision(player_);
+		}
+	}
+
+	for (ShieldEnemy* shieldEnemy : shieldEnemies_) {
+		if (shieldEnemy->IsCollisionDisabled()) {
+			continue;
+		}
+		const AABB shieldEnemyAABB = shieldEnemy->GetAABB();
+		const bool isHit = IsAABBCollision(playerAABB, shieldEnemyAABB);
+		if (isHit) {
+			player_->ShieldEnemyOnCollision(shieldEnemy);
+			shieldEnemy->OnCollision(player_);
 		}
 	}
 }
@@ -313,18 +341,34 @@ void GameScene::RemoveDeadEnemies() {
 	enemies_.erase(erasedBegin, enemies_.end());
 }
 
-void GameScene::CreateHitEffect(const Vector3& position) {
-	HitEffect* newHitEffect = HitEffect::Create(position);
-	hitEffects_.push_back(newHitEffect);
-}
-
-void GameScene::RemoveDeadHitEffects() {
-	auto erasedBegin = std::remove_if(hitEffects_.begin(), hitEffects_.end(), [](HitEffect* hitEffect) {
-		if (hitEffect->IsDead()) {
-			delete hitEffect;
+void GameScene::RemoveDeadShieldEnemies() {
+	auto erasedBegin = std::remove_if(shieldEnemies_.begin(), shieldEnemies_.end(), [](ShieldEnemy* shieldEnemy) {
+		if (shieldEnemy->IsDead()) {
+			delete shieldEnemy;
 			return true;
 		}
 		return false;
 	});
-	hitEffects_.erase(erasedBegin, hitEffects_.end());
+	shieldEnemies_.erase(erasedBegin, shieldEnemies_.end());
+}
+
+void GameScene::CreateHitEffect(const Vector3& position) {
+	HitEffect* newHitEffect = HitEffect::Create(position);
+	HitEffects_.push_back(newHitEffect);
+}
+
+void GameScene::RemoveDeadHitEffects() {
+	auto erasedBegin = std::remove_if(HitEffects_.begin(), HitEffects_.end(), [](HitEffect* HitEffect) {
+		if (HitEffect->IsDead()) {
+			delete HitEffect;
+			return true;
+		}
+		return false;
+	});
+	HitEffects_.erase(erasedBegin, HitEffects_.end());
+}
+
+void GameScene::CreateGunEffect(const Vector3& position) {
+	GuardEffect* newGuardEffect = GuardEffect::Create(position);
+	guardEffects_.push_back(newGuardEffect);
 }

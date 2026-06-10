@@ -1,9 +1,10 @@
 #pragma once
 
-#include "AABB.h"
-#include "KamataEngine.h"
-
 #include <3d/WorldTransform.h>
+#include "AABB.h"
+#include "HitEffect.h"
+#include "KamataEngine.h"
+#include "Matrix4x4.h"
 
 class Player;
 class GameScene;
@@ -16,6 +17,7 @@ public:
 		kDead,
 	};
 
+
 	static constexpr float kWalSpeed = 0.1f;
 	KamataEngine::Vector3 velocity_ = {};
 
@@ -27,6 +29,7 @@ public:
 	static constexpr float kWidth = 2.0f;
 	static constexpr float kHeight = 2.0f;
 
+
 	ShieldEnemy();
 	~ShieldEnemy();
 
@@ -36,7 +39,7 @@ public:
 
 	KamataEngine::Vector3 GetWorldPosition() const;
 	AABB GetAABB() const;
-	void OnCollision(const Player* player);
+	void OnCollision(Player* player);
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 
 	bool IsDead() const { return isDead_; }
@@ -52,7 +55,7 @@ private:
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::Camera* camera_ = nullptr;
 	GameScene* gameScene_ = nullptr;
-
+	HitEffect* HitEffect_;
 	Behavior behavior_ = Behavior::kWalk;
 	Behavior behaviorRequest_ = Behavior::kUnknown;
 	bool isDead_ = false;

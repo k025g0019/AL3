@@ -1,4 +1,4 @@
-﻿#include "HitEffect.h"
+#include "HitEffect.h"
 
 #include <algorithm>
 #include <cassert>
@@ -12,14 +12,14 @@ using namespace KamataEngine;
 Model* HitEffect::model_ = nullptr;
 Camera* HitEffect::camera_ = nullptr;
 
-HitEffect* HitEffect::Create(const KamataEngine::Vector3& position) {
+HitEffect* HitEffect::Create(const Vector3& position) {
 	HitEffect* instance = new HitEffect();
 	assert(instance);
 	instance->Initialize(position);
 	return instance;
 }
 
-void HitEffect::Initialize(const KamataEngine::Vector3& position) {
+void HitEffect::Initialize(const Vector3& position) {
 	objectColor_.Initialize();
 	color_ = {1.0f, 1.0f, 1.0f, 1.0f};
 	objectColor_.SetColor(color_);
@@ -49,7 +49,7 @@ void HitEffect::Update() {
 		return;
 	}
 
-	const float kDeltaTime = 1.0f / 60.0f;
+	constexpr float kDeltaTime = 1.0f / 60.0f;
 	counter_ += kDeltaTime;
 
 	switch (state_) {
@@ -82,11 +82,13 @@ void HitEffect::Update() {
 		break;
 	}
 
-	circleWorldTransform_.matWorld_ = MakeAffineMatrix(circleWorldTransform_.scale_, circleWorldTransform_.rotation_, circleWorldTransform_.translation_);
+	circleWorldTransform_.matWorld_ = MakeAffineMatrix(circleWorldTransform_.scale_, circleWorldTransform_.rotation_,
+	                                                   circleWorldTransform_.translation_);
 	circleWorldTransform_.TransferMatrix();
 
 	for (WorldTransform& worldTransform : ellipseWorldTransforms_) {
-		worldTransform.matWorld_ = MakeAffineMatrix(worldTransform.scale_, worldTransform.rotation_, worldTransform.translation_);
+		worldTransform.matWorld_ = MakeAffineMatrix(worldTransform.scale_, worldTransform.rotation_,
+		                                            worldTransform.translation_);
 		worldTransform.TransferMatrix();
 	}
 }
