@@ -1,6 +1,8 @@
 #pragma once
 
 #include "KamataEngine.h"
+#include  "PlayerBullet.h"
+#include "worldTransform.h"
 
 class Player {
 public:
@@ -10,11 +12,19 @@ public:
 	// 更新
 	void Update();
 
+	//回転
+	void Rotate();
+
 	// 描画
 	void Draw(const KamataEngine::Camera& camera);
 
+
+	void Attack();
+
 	// ワールド座標の取得
 	const KamataEngine::Vector3& GetWorldPosition() const { return worldTransform_.translation_; }
+
+	PlayerBullet* bullet_ = nullptr;
 
 private:
 	// メンバ変数
@@ -27,9 +37,9 @@ private:
 	KamataEngine::Vector3 move_ = {0.0f, 0.0f, 0.0f};
 
 	// 定数
-	static inline constexpr float kMoveSpeed = 0.2f;
-	static inline constexpr float kLowerLimitX = 0.0f;
-	static inline constexpr float kUpperLimitX = 1200.0f;
-	static inline constexpr float kLowerLimitY = 0.0f;
-	static inline constexpr float kUpperLimitY = 720.0f;
+	static constexpr float kMoveSpeed = 0.2f;
+	static constexpr float kLowerLimitX = -15.0f;
+	static constexpr float kUpperLimitX = 15.0f;
+	static constexpr float kLowerLimitY = -15.0f;
+	static constexpr float kUpperLimitY = 15.0f;
 };

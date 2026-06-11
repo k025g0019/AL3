@@ -1,7 +1,7 @@
 #include "Player.h"
 
 #include <algorithm>
-#include <math\MathUtility.h>
+#include <math/MathUtility.h>
 
 using namespace KamataEngine;
 using namespace KamataEngine::MathUtility;
@@ -60,17 +60,44 @@ void Player::Update() {
 	worldTransform_.translation_.y =
 		std::clamp(worldTransform_.translation_.y, kLowerLimitY, kUpperLimitY);
 
+
+	Attack();
 	// ワールド行列の転送
-	worldTransform_.matWorld_ = MakeScaleMatrix(worldTransform_.scale_) *
-		MakeRotateXMatrix(worldTransform_.rotation_.x) *
-		MakeRotateYMatrix(worldTransform_.rotation_.y) *
-		MakeRotateZMatrix(worldTransform_.rotation_.z) *
-		MakeTranslateMatrix(worldTransform_.translation_);
-	worldTransform_.TransferMatrix();
+	worldTransformMatrix(worldTransform_);
+
+	if (bullet_) {
+		bullet_->Update();
+	}
+}
+
+void Player::Rotate() {
+	// 回転処理
+	constexpr float kRotSpeed = 0.02f;
+
+	if (input_->PushKey(DIK_A)) {
+		worldTransform_.rotation_.y -= kRotSpeed;
+	}
+
+	if (input_->PushKey(DIK_D)) {
+		worldTransform_.rotation_.y += kRotSpeed;
+	}
 }
 
 void Player::Draw(const Camera& camera) {
 	assert(model_ != nullptr);
 
 	model_->Draw(worldTransform_, camera, textureHandle_);
+
+	if (bullet_) {
+		bullet_->Draw(camera);
+	}
+}
+
+void Player::Attack() {
+	if (input_->TriggerKey(DIK_SPACE)) {
+		auto newBullet = new PlayerBullet();
+		newBullet->Initialize(model_, worldTransform_.translation_);
+
+		bullet_ = newBullet;
+	}
 }
