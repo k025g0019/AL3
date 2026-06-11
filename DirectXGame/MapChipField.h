@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <math/Vector3.h>
 
@@ -17,6 +17,10 @@ enum class MapChipType {
 	kBlock,
 };
 
+struct MapChipDataUnit {
+	MapChipType type;
+	uint8_t subID;
+};
 //====================
 // マップデータ
 //====================
@@ -24,7 +28,7 @@ enum class MapChipType {
 2次元のマップチップ配列
 */
 struct MapChipData {
-	std::vector<std::vector<MapChipType>> data;
+	std::vector<std::vector<MapChipDataUnit>> data;
 };
 
 //====================
@@ -65,6 +69,11 @@ public:
 		uint32_t yIndex;
 	};
 
+	enum MapChipCharIndex {
+		kChipType = 0,
+		kChipSubID = 1,
+	};
+	uint8_t GetMapChipSubIDByIndex(uint32_t xIndex, uint32_t yIndex);
 	//====================
 	// 関数
 	//====================

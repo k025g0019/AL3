@@ -1,4 +1,4 @@
-﻿//====================
+//====================
 // マップチップ 実装
 //====================
 #include "MapChipField.h"
@@ -11,17 +11,24 @@
 #include <string>
 
 namespace {
-//====================
-// CSV変換テーブル
-//====================
-/*
-CSV文字列をMapChipTypeへ変換する
-*/
-std::map<std::string, MapChipType> mapChipTable = {
-    {"0", MapChipType::kBlank},
-    {"1", MapChipType::kBlock},
-};
+	
+	
+	std::map<char, MapChipType> mapChipTypeTable = {
+    {'B', MapChipType::kBlock},
+
+	};
+	//====================
+	// CSV変換テーブル
+	//====================
+	/*
+	CSV文字列をMapChipTypeへ変換する
+	*/
+	std::map<std::string, MapChipType> mapChipTable = {
+	    {"0", MapChipType::kBlank},
+	    {"1", MapChipType::kBlock},
+	};
 }
+
 
 //====================
 // マップ配列初期化
@@ -37,7 +44,7 @@ void MapChipField::ResetMapChipData() {
 	mapchipDate_.data.resize(kNumBlockVirtical);
 
 	// 各行の横要素を確保
-	for (std::vector<MapChipType>& mapChipsDataLine : mapchipDate_.data) {
+	for (std::vector<MapChipDataUnit>& mapChipsDataLine : mapchipDate_.data) {
 		mapChipsDataLine.resize(kNumBlockHorizontal);
 	}
 }
@@ -72,9 +79,24 @@ void MapChipField::LoadMapChipCsv(const std::string& filePath) {
 			std::string word;
 			std::getline(lineStream, word, ',');
 
-			if (mapChipTable.contains(word)) {
-				mapchipDate_.data[i][j] = mapChipTable[word];
+			if (word.empty()) {
+				continue;
+				
 			}
+
+			if (!mapChipTypeTable.contains(word[kChipType])) {
+				continue;
+			}
+
+			mapchipDate_.data[i][j].type = mapChipTypeTable[word[kChipType]];
+
+			if (word.size() <= kChipSubID) {
+				continue;;
+
+			}
+
+			mapchipDate_.data[i][j].subID = static_cast<uint8_t>(word[kChipSubID] - '0');
+
 		}
 	}
 }
@@ -95,7 +117,7 @@ MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex
 	}
 
 	// 範囲内は配列値を返す
-	return mapchipDate_.data[yIndex][xIndex];
+	return mapchipDate_.data[yIndex][xIndex].type;
 }
 
 //====================
