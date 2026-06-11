@@ -30,6 +30,18 @@ void GameScene::GenerateFieldObjects() {
 				player_ = new Player();
 				player_->Initialize(playerModel_, &camera_, playerPosition);
 				player_->SetMapChipField(mapChipField_);
+			} else if (type == MapChipType::kEnemy) {
+				Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(j, i);
+				auto newEnemy = new Enemy();
+				newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
+				newEnemy->SetGameScene(this);
+				enemies_.push_back(newEnemy);
+			} else if (type == MapChipType::kShieldEnemy) {
+				Vector3 shieldEnemyPosition = mapChipField_->GetMapChipPositionByIndex(j, i);
+				auto newShieldEnemy = new ShieldEnemy();
+				newShieldEnemy->Initialize(modelShieldEnemy_, &camera_, shieldEnemyPosition);
+				newShieldEnemy->SetGameScene(this);
+				shieldEnemies_.push_back(newShieldEnemy);
 			}
 		}
 	}
@@ -54,12 +66,10 @@ void GameScene::Initialize() {
 	debugCamera_ = new DebugCamera(1280, 720);
 	mapChipField_ = new MapChipField;
 
-	// ステージデータテーブルからCSVファイルパスを取得
-	uint32_t stageIndex = stageNo_ - 1;
-	if (stageIndex >= kNumStages) {
-		stageIndex = 0;
+	// StageManagerからCSVファイルパスを取得
+	if (stageManager_) {
+		mapChipField_->LoadMapChipCsv(stageManager_->GetStageCsvPath(stageNo_));
 	}
-	mapChipField_->LoadMapChipCsv(kStageData[stageIndex].csvFilePath);
 
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
@@ -159,7 +169,7 @@ void GameScene::ChangePhase() {
 void GameScene::Update() {
 	ImGui::Begin("Debug1");
 	ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
-	ImGui::Text("Stage: %u / %u", stageNo_, kNumStages);
+	ImGui::Text("Stage: %u / %u", stageNo_, stageManager_ ? stageManager_->GetNumStages() : 0);
 	if (ImGui::Button("Reload")) {
 		reloadRequested_ = true;
 	}

@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include "GameScene.h"
 #include "KamataEngine.h"
+#include "StageManager.h"
 #include "TitleScene.h"
 
 
@@ -19,6 +20,7 @@ namespace {
 	auto scene = Scene::kUnknown;
 	TitleScene* titleScene = nullptr;
 	GameScene* gameScene = nullptr;
+	StageManager* stageManager = nullptr;
 	uint32_t currentStageNo = 1;
 
 	void ChangeScene() {
@@ -30,6 +32,7 @@ namespace {
 				titleScene = nullptr;
 				gameScene = new GameScene();
 				gameScene->SetStageNo(currentStageNo);
+				gameScene->SetStageManager(stageManager);
 				gameScene->Initialize();
 			}
 			break;
@@ -37,7 +40,7 @@ namespace {
 			if (gameScene && gameScene->IsFinished()) {
 				// ステージクリア：次のステージへ
 				currentStageNo++;
-				if (currentStageNo > kNumStages) {
+				if (currentStageNo > stageManager->GetNumStages()) {
 					// 全ステージクリア：タイトルへ戻る
 					currentStageNo = 1;
 					scene = Scene::kTitle;
@@ -50,12 +53,14 @@ namespace {
 					delete gameScene;
 					gameScene = new GameScene();
 					gameScene->SetStageNo(currentStageNo);
+					gameScene->SetStageManager(stageManager);
 					gameScene->Initialize();
 				}
 			} else if (gameScene && gameScene->IsReloadRequested()) {
 				delete gameScene;
 				gameScene = new GameScene();
 				gameScene->SetStageNo(currentStageNo);
+				gameScene->SetStageManager(stageManager);
 				gameScene->Initialize();
 			}
 			break;
@@ -105,6 +110,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
 
 	scene = Scene::kTitle;
+	stageManager = new StageManager();
+	stageManager->AddStage(1, "Resources/stage_01.csv");
+	stageManager->AddStage(2, "Resources/stage_02.csv");
+	stageManager->AddStage(3, "Resources/stage_03.csv");
+
 	titleScene = new TitleScene();
 	titleScene->Initialize();
 
@@ -130,6 +140,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	titleScene = nullptr;
 	delete gameScene;
 	gameScene = nullptr;
+	delete stageManager;
+	stageManager = nullptr;
 
 	Finalize();
 	return 0;

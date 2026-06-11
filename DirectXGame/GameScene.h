@@ -11,6 +11,7 @@
 #include "Matrix4x4.h"
 #include "Player.h"
 #include "ShieldEnemy.h"
+#include "StageManager.h"
 
 class GameScene {
 public:
@@ -44,6 +45,7 @@ public:
 	DeathParticles* deathParticles_ = nullptr;
 	CameraController* cameraController_ = nullptr;
 	MapChipField* mapChipField_ = nullptr;
+	StageManager* stageManager_ = nullptr;
 	Fade* fade_ = nullptr;
 
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
@@ -58,6 +60,7 @@ public:
 	bool IsReloadRequested() const { return reloadRequested_; }
 	void SetStageNo(uint32_t stageNo) { stageNo_ = stageNo; }
 	uint32_t GetStageNo() const { return stageNo_; }
+	void SetStageManager(StageManager* stageManager) { stageManager_ = stageManager; }
 	void CreateGunEffect(const KamataEngine::Vector3& position);
 
 	void GenerateFieldObjects();

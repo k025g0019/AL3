@@ -101,7 +101,7 @@ public:
 	AABB GetAABB() const;
 	void EnemyOnCollision(const Enemy* enemy);
 	void ShieldEnemyOnCollision(const ShieldEnemy* shieldEnemy);
-	KamataEngine::WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransform_{};
 	KamataEngine::Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0;
 	MapChipField* mapChipField_ = nullptr;
