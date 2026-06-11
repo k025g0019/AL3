@@ -56,6 +56,8 @@ public:
 	void Draw();
 	bool IsFinished() const { return finished_; }
 	bool IsReloadRequested() const { return reloadRequested_; }
+	void SetStageNo(uint32_t stageNo) { stageNo_ = stageNo; }
+	uint32_t GetStageNo() const { return stageNo_; }
 	void CreateGunEffect(const KamataEngine::Vector3& position);
 
 	void GenerateFieldObjects();
@@ -74,4 +76,5 @@ private:
 	Phase phase_ = Phase::kFadeIn;
 	bool finished_ = false;
 	bool reloadRequested_ = false;
+	uint32_t stageNo_ = 1;
 };

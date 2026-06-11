@@ -19,6 +19,7 @@ namespace {
 	auto scene = Scene::kUnknown;
 	TitleScene* titleScene = nullptr;
 	GameScene* gameScene = nullptr;
+	uint32_t currentStageNo = 1;
 
 	void ChangeScene() {
 		switch (scene) {
@@ -28,19 +29,33 @@ namespace {
 				delete titleScene;
 				titleScene = nullptr;
 				gameScene = new GameScene();
+				gameScene->SetStageNo(currentStageNo);
 				gameScene->Initialize();
 			}
 			break;
 		case Scene::kGame:
 			if (gameScene && gameScene->IsFinished()) {
-				scene = Scene::kTitle;
-				delete gameScene;
-				gameScene = nullptr;
-				titleScene = new TitleScene();
-				titleScene->Initialize();
+				// ステージクリア：次のステージへ
+				currentStageNo++;
+				if (currentStageNo > kNumStages) {
+					// 全ステージクリア：タイトルへ戻る
+					currentStageNo = 1;
+					scene = Scene::kTitle;
+					delete gameScene;
+					gameScene = nullptr;
+					titleScene = new TitleScene();
+					titleScene->Initialize();
+				} else {
+					// 次のステージを読み込み
+					delete gameScene;
+					gameScene = new GameScene();
+					gameScene->SetStageNo(currentStageNo);
+					gameScene->Initialize();
+				}
 			} else if (gameScene && gameScene->IsReloadRequested()) {
 				delete gameScene;
 				gameScene = new GameScene();
+				gameScene->SetStageNo(currentStageNo);
 				gameScene->Initialize();
 			}
 			break;

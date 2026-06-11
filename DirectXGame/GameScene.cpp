@@ -53,7 +53,13 @@ void GameScene::Initialize() {
 	GuardEffect::SetCamera(&camera_);
 	debugCamera_ = new DebugCamera(1280, 720);
 	mapChipField_ = new MapChipField;
-	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
+
+	// ステージデータテーブルからCSVファイルパスを取得
+	uint32_t stageIndex = stageNo_ - 1;
+	if (stageIndex >= kNumStages) {
+		stageIndex = 0;
+	}
+	mapChipField_->LoadMapChipCsv(kStageData[stageIndex].csvFilePath);
 
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
@@ -153,6 +159,7 @@ void GameScene::ChangePhase() {
 void GameScene::Update() {
 	ImGui::Begin("Debug1");
 	ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
+	ImGui::Text("Stage: %u / %u", stageNo_, kNumStages);
 	if (ImGui::Button("Reload")) {
 		reloadRequested_ = true;
 	}

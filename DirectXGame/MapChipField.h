@@ -33,6 +33,25 @@ struct MapChipData {
 };
 
 //====================
+// ステージデータ
+//====================
+/*
+ステージ番号に対応するCSVファイルパスを管理する
+*/
+struct StageData {
+	uint32_t stageNo;
+	std::string csvFilePath;
+};
+
+// ステージデータテーブル（データ駆動）
+inline constexpr uint32_t kNumStages = 3;
+inline const StageData kStageData[kNumStages] = {
+	{1, "Resources/stage_01.csv"},
+	{2, "Resources/stage_02.csv"},
+	{3, "Resources/stage_03.csv"},
+};
+
+//====================
 // マップチップフィールド
 //====================
 /*
