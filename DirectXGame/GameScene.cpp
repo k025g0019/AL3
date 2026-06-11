@@ -7,7 +7,7 @@
 
 using namespace KamataEngine;
 
-void GameScene::GenerateBlocks() {
+void GameScene::GenerateFieldObjects() {
 	constexpr uint32_t kNumBlockVertical = 20;
 	constexpr uint32_t kNumBlockHorizontal = 100;
 
@@ -18,12 +18,18 @@ void GameScene::GenerateBlocks() {
 
 	for (uint32_t i = 0; i < kNumBlockVertical; i++) {
 		for (uint32_t j = 0; j < kNumBlockHorizontal; j++) {
-			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
+			MapChipType type = mapChipField_->GetMapChipTypeByIndex(j, i);
+			if (type == MapChipType::kBlock) {
 				worldTransformBlocks_[i][j] = new WorldTransform();
 				worldTransformBlocks_[i][j]->Initialize();
 				worldTransformBlocks_[i][j]->scale_ = {2.0f, 2.0f, 2.0f};
 				worldTransformBlocks_[i][j]->rotation_ = {0.0f, 0.0f, 0.0f};
 				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			} else if (type == MapChipType::kPlayer) {
+				Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(j, i);
+				player_ = new Player();
+				player_->Initialize(playerModel_, &camera_, playerPosition);
+				player_->SetMapChipField(mapChipField_);
 			}
 		}
 	}
@@ -52,30 +58,7 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 
-	GenerateBlocks();
-
-	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
-	player_ = new Player();
-	player_->Initialize(playerModel_, &camera_, playerPosition);
-	player_->SetMapChipField(mapChipField_);
-
-	constexpr int32_t kEnemyCount = 3;
-	for (int32_t i = 0; i < kEnemyCount; ++i) {
-		auto newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(12 + static_cast<uint32_t>(i) * 8, 18);
-		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
-		newEnemy->SetGameScene(this);
-		enemies_.push_back(newEnemy);
-	}
-
-	constexpr int32_t kShieldEnemyCount = 3;
-	for (int32_t i = 0; i < kShieldEnemyCount; ++i) {
-		auto shieldEnemy = new ShieldEnemy();
-		Vector3 shieldEnemyPosition = mapChipField_->GetMapChipPositionByIndex(20 + static_cast<uint32_t>(i) * 8, 16);
-		shieldEnemy->Initialize(modelShieldEnemy_, &camera_, shieldEnemyPosition);
-		shieldEnemy->SetGameScene(this);
-		shieldEnemies_.push_back(shieldEnemy);
-	}
+	GenerateFieldObjects();
 
 	cameraController_ = new CameraController();
 	cameraController_->SetCamera(&camera_);
@@ -170,6 +153,9 @@ void GameScene::ChangePhase() {
 void GameScene::Update() {
 	ImGui::Begin("Debug1");
 	ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
+	if (ImGui::Button("Reload")) {
+		reloadRequested_ = true;
+	}
 	ImGui::End();
 
 	debugCamera_->Update();

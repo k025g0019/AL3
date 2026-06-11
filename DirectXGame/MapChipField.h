@@ -15,6 +15,7 @@ CSV の値とマップチップ種別の対応
 enum class MapChipType {
 	kBlank,
 	kBlock,
+	kPlayer,
 };
 
 struct MapChipDataUnit {

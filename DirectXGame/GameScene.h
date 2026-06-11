@@ -55,9 +55,10 @@ public:
 	void Update();
 	void Draw();
 	bool IsFinished() const { return finished_; }
+	bool IsReloadRequested() const { return reloadRequested_; }
 	void CreateGunEffect(const KamataEngine::Vector3& position);
 
-	void GenerateBlocks();
+	void GenerateFieldObjects();
 	void CheckAllCollisions();
 	void CreateHitEffect(const KamataEngine::Vector3& position);
 
@@ -72,4 +73,5 @@ private:
 	static constexpr float kFadeDuration = 1.0f;
 	Phase phase_ = Phase::kFadeIn;
 	bool finished_ = false;
+	bool reloadRequested_ = false;
 };

@@ -14,18 +14,8 @@ namespace {
 	
 	
 	std::map<char, MapChipType> mapChipTypeTable = {
-    {'B', MapChipType::kBlock},
-
-	};
-	//====================
-	// CSV変換テーブル
-	//====================
-	/*
-	CSV文字列をMapChipTypeへ変換する
-	*/
-	std::map<std::string, MapChipType> mapChipTable = {
-	    {"0", MapChipType::kBlank},
-	    {"1", MapChipType::kBlock},
+		{'B', MapChipType::kBlock},
+		{'P', MapChipType::kPlayer},
 	};
 }
 
@@ -118,6 +108,25 @@ MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex
 
 	// 範囲内は配列値を返す
 	return mapchipDate_.data[yIndex][xIndex].type;
+}
+
+//====================
+// サブID取得
+//====================
+/*
+インデックスからマップチップサブIDを取得する
+*/
+uint8_t MapChipField::GetMapChipSubIDByIndex(uint32_t xIndex, uint32_t yIndex) {
+	// 範囲外は0を返す
+	if (kNumBlockHorizontal - 1 < xIndex) {
+		return 0;
+	}
+	if (kNumBlockVirtical - 1 < yIndex) {
+		return 0;
+	}
+
+	// 範囲内は配列値を返す
+	return mapchipDate_.data[yIndex][xIndex].subID;
 }
 
 //====================

@@ -38,6 +38,10 @@ namespace {
 				gameScene = nullptr;
 				titleScene = new TitleScene();
 				titleScene->Initialize();
+			} else if (gameScene && gameScene->IsReloadRequested()) {
+				delete gameScene;
+				gameScene = new GameScene();
+				gameScene->Initialize();
 			}
 			break;
 		default:
