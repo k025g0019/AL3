@@ -1,58 +1,102 @@
-#include "GameScene.h"
+﻿#include "GameScene.h"
+
+#include <imgui.h>
+#include <string>
 
 using namespace KamataEngine;
+
+namespace {
+
+const Camera& GetActiveCamera(const Camera& camera, DebugCamera* debugCamera, bool isDebugCameraActive) {
+	if (isDebugCameraActive) {
+		assert(debugCamera != nullptr);
+		return debugCamera->GetCamera();
+	}
+
+	return camera;
+}
+
+} // namespace
+
 void GameScene::Initialize() {
+	if (isInitialized_) {
+		return;
+	}
+
+	// テクスチャとモデルの読み込み
 	textureHandle_ = TextureManager::Load("mario.jpg");
+	playerModel_ = Model::Create();
 
-	// スプライトインスタンスの生成
-	model_ = Model::Create();
-
-	worldTransform_.Initialize();
+	// カメラの初期化
 	camera_.Initialize();
+	camera_.translation_ = {0.0f, 0.0f, -15.0f};
+	camera_.TransferMatrix();
 
+	// 描画系のカメラ設定
 	PrimitiveDrawer::GetInstance()->SetCamera(&camera_);
 
+	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
 
-	// 軸方向表示の表示を有効にする
+	// 自キャラの生成
+	player_ = new Player();
+	player_->Initialize(playerModel_, textureHandle_);
+
+	// 軸方向表示を有効化
 	AxisIndicator::GetInstance()->SetVisible(true);
+	AxisIndicator::GetInstance()->SetTargetCamera(&camera_);
 
-	// 軸方向表示が参照するビュープロジェクションを指定する
-	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
-
+	isInitialized_ = true;
 }
 
 void GameScene::Update() {
+	assert(player_ != nullptr);
+	assert(debugCamera_ != nullptr);
 
-	ImGui::Begin("Debug1");
-	ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
+	// 自キャラの更新
+	player_->Update();
+
+	// 座標の画面表示
+	const Vector3& playerPosition = player_->GetWorldPosition();
+	ImGui::Begin("Player");
+	ImGui::Text("x = %.2f", playerPosition.x);
+	ImGui::Text("y = %.2f", playerPosition.y);
+	ImGui::Text("z = %.2f", playerPosition.z);
 	ImGui::End();
 
-	debugCamera_->Update();
-	//// スプライトの座標を取得
-	// Vector2 position = sprite_->GetPosition();
+#ifdef _DEBUG
+	// デバッグカメラの切り替え
+	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		isDebugCameraActive_ = !isDebugCameraActive_;
+	}
+#endif
 
-	//// 座標を{2.0f, 1.0f}移動
-	// position.x += 2.0f;
-	// position.y += 1.0f;
-
-	//// 移動した座標をスプライトに反映
-	// sprite_->SetPosition(position);
+	// 有効中のカメラだけを更新
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
+	}
+	else {
+		camera_.TransferMatrix();
+		AxisIndicator::GetInstance()->SetTargetCamera(&camera_);
+	}
 }
 
 void GameScene::Draw() {
+	assert(player_ != nullptr);
 
-	PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
+	const Camera& activeCamera = GetActiveCamera(camera_, debugCamera_, isDebugCameraActive_);
 
 	Model::PreDraw();
-	model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_);
+	player_->Draw(activeCamera);
 	Model::PostDraw();
 }
 
-GameScene::GameScene() { Initialize(); }
+GameScene::GameScene() {
+}
 
 GameScene::~GameScene() {
+	delete player_;
 	delete debugCamera_;
-	delete model_;
-	sprite_ = nullptr;
+	delete playerModel_;
 }
