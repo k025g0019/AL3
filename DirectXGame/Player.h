@@ -1,5 +1,7 @@
 #pragma once
 
+#include  <list>
+
 #include "KamataEngine.h"
 #include  "PlayerBullet.h"
 #include "worldTransform.h"
@@ -21,6 +23,9 @@ public:
 
 	void Attack();
 
+	std::list<PlayerBullet*> bullets_;
+	Player();
+	~Player();
 	// ワールド座標の取得
 	const KamataEngine::Vector3& GetWorldPosition() const { return worldTransform_.translation_; }
 

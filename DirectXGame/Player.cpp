@@ -65,8 +65,8 @@ void Player::Update() {
 	// ワールド行列の転送
 	worldTransformMatrix(worldTransform_);
 
-	if (bullet_) {
-		bullet_->Update();
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Update();
 	}
 }
 
@@ -88,16 +88,27 @@ void Player::Draw(const Camera& camera) {
 
 	model_->Draw(worldTransform_, camera, textureHandle_);
 
-	if (bullet_) {
-		bullet_->Draw(camera);
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Draw(camera);
 	}
 }
 
 void Player::Attack() {
 	if (input_->TriggerKey(DIK_SPACE)) {
-		auto newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_);
+		Vector3 position = worldTransform_.translation_;
 
-		bullet_ = newBullet;
+
+		auto newBullet = new PlayerBullet();
+		newBullet->Initialize(model_, position);
+
+		bullets_.push_back(newBullet);
 	}
+}
+
+Player::~Player() {
+	delete bullet_;
+	bullet_ = nullptr;
+}
+
+Player::Player() {
 }
