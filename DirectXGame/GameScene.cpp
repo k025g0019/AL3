@@ -107,4 +107,6 @@ GameScene::~GameScene() {
 	delete player_;
 	delete debugCamera_;
 	delete playerModel_;
+	delete enemyModel_;
+	delete enemy_;
 }

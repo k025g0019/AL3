@@ -29,8 +29,6 @@ public:
 	// ワールド座標の取得
 	const KamataEngine::Vector3& GetWorldPosition() const { return worldTransform_.translation_; }
 
-	PlayerBullet* bullet_ = nullptr;
-
 private:
 	// メンバ変数
 	KamataEngine::Input* input_ = nullptr;

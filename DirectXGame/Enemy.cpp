@@ -17,10 +17,7 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle) {
 	worldTransform_.Initialize();
 	worldTransform_.scale_ = {2.0f, 2.0f, 2.0f};
 	worldTransform_.translation_ = {0.0f, 0.0f, 100.0f};
-	worldTransform_.matWorld_ = MakeScaleMatrix(worldTransform_.scale_) * MakeRotateXMatrix(worldTransform_.rotation_.x)
-		* MakeRotateYMatrix(worldTransform_.rotation_.y) *
-		MakeRotateZMatrix(worldTransform_.rotation_.z) * MakeTranslateMatrix(worldTransform_.translation_);
-	worldTransform_.TransferMatrix();
+	worldTransformMatrix(worldTransform_);
 }
 
 void Enemy::Update() {
