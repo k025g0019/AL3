@@ -1,4 +1,4 @@
-﻿#include "GameScene.h"
+#include "GameScene.h"
 
 #include <imgui.h>
 #include <string>
@@ -6,16 +6,14 @@
 using namespace KamataEngine;
 
 namespace {
+	const Camera& GetActiveCamera(const Camera& camera, DebugCamera* debugCamera, bool isDebugCameraActive) {
+		if (isDebugCameraActive) {
+			assert(debugCamera != nullptr);
+			return debugCamera->GetCamera();
+		}
 
-const Camera& GetActiveCamera(const Camera& camera, DebugCamera* debugCamera, bool isDebugCameraActive) {
-	if (isDebugCameraActive) {
-		assert(debugCamera != nullptr);
-		return debugCamera->GetCamera();
+		return camera;
 	}
-
-	return camera;
-}
-
 } // namespace
 
 void GameScene::Initialize() {
@@ -24,9 +22,10 @@ void GameScene::Initialize() {
 	}
 
 	// テクスチャとモデルの読み込み
-	textureHandle_ = TextureManager::Load("mario.jpg");
+	playertextureHandle_ = TextureManager::Load("mario.jpg");
+	enemytextureHandle_ = TextureManager::Load("mario.jpg");
 	playerModel_ = Model::Create();
-
+	enemyModel_ = Model::Create();
 	// カメラの初期化
 	camera_.Initialize();
 	camera_.translation_ = {0.0f, 0.0f, -15.0f};
@@ -40,7 +39,9 @@ void GameScene::Initialize() {
 
 	// 自キャラの生成
 	player_ = new Player();
-	player_->Initialize(playerModel_, textureHandle_);
+	enemy_ = new Enemy();
+	player_->Initialize(playerModel_, playertextureHandle_);
+	enemy_->Initialize(enemyModel_, enemytextureHandle_);
 
 	// 軸方向表示を有効化
 	AxisIndicator::GetInstance()->SetVisible(true);
@@ -55,13 +56,19 @@ void GameScene::Update() {
 
 	// 自キャラの更新
 	player_->Update();
-
+	enemy_->Update();
 	// 座標の画面表示
 	const Vector3& playerPosition = player_->GetWorldPosition();
+	const Vector3& enemyPosition = enemy_->GetWorldPosition();
 	ImGui::Begin("Player");
 	ImGui::Text("x = %.2f", playerPosition.x);
 	ImGui::Text("y = %.2f", playerPosition.y);
 	ImGui::Text("z = %.2f", playerPosition.z);
+	ImGui::End();
+	ImGui::Begin("Enemy");
+	ImGui::Text("x = %.2f", enemyPosition.x);
+	ImGui::Text("y = %.2f", enemyPosition.y);
+	ImGui::Text("z = %.2f", enemyPosition.z);
 	ImGui::End();
 
 #ifdef _DEBUG
@@ -89,6 +96,7 @@ void GameScene::Draw() {
 
 	Model::PreDraw();
 	player_->Draw(activeCamera);
+	enemy_->Draw(activeCamera);
 	Model::PostDraw();
 }
 
