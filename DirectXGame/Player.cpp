@@ -60,7 +60,7 @@ void Player::Update() {
 	worldTransform_.translation_.y =
 		std::clamp(worldTransform_.translation_.y, kLowerLimitY, kUpperLimitY);
 
-
+	Rotate();
 	Attack();
 	// ワールド行列の転送
 	worldTransformMatrix(worldTransform_);
@@ -95,9 +95,17 @@ void Player::Draw(const Camera& camera) {
 
 void Player::Attack() {
 	if (input_->TriggerKey(DIK_SPACE)) {
+		if (bullet_) {
+			delete bullet_;
+			bullet_ = nullptr;
+		}
 		auto newBullet = new PlayerBullet();
 		newBullet->Initialize(model_, worldTransform_.translation_);
 
 		bullet_ = newBullet;
 	}
+}
+
+Player::~Player() {
+	delete bullet_;
 }

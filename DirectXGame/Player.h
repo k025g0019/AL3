@@ -18,7 +18,7 @@ public:
 	// 描画
 	void Draw(const KamataEngine::Camera& camera);
 
-
+	~Player();
 	void Attack();
 
 	// ワールド座標の取得
