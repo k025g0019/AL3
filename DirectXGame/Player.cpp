@@ -113,7 +113,7 @@ void Player::Attack() {
 
 		auto newBullet = new PlayerBullet();
 		newBullet->Initialize(model_, position, velocity);
-////
+		////
 		bullets_.push_back(newBullet);
 	}
 }
