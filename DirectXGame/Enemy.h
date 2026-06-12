@@ -2,6 +2,11 @@
 #include "KamataEngine.h"
 #include "worldTransform.h"
 
+enum class Phase {
+	Approach, // 接近
+	Leave, // 攻撃
+};
+
 class Enemy {
 public:
 	void Initialize(KamataEngine::Model* model, uint32_t textureHandle);
@@ -9,6 +14,7 @@ public:
 	void Update();
 	void Draw(const KamataEngine::Camera& camera);
 	const KamataEngine::Vector3& GetWorldPosition() const { return worldTransform_.translation_; }
+	Phase phase_ = Phase::Approach;
 
 private:
 	KamataEngine::Model* model_ = nullptr;

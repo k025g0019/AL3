@@ -25,8 +25,25 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle) {
 
 void Enemy::Update() {
 	move_ = {0.0f, 0.0f, 0.0f};
-	move_.z = kMoveSpeed;
-	worldTransform_.translation_.z -= move_.z;
+	switch (phase_) {
+	case Phase::Approach:
+		move_.z = kMoveSpeed;
+		worldTransform_.translation_.z -= move_.z;
+
+		if (worldTransform_.translation_.z < 0.0f) {
+			phase_ = Phase::Leave;
+		}
+		break;
+	default:
+
+
+	case Phase::Leave:
+		move_.z = kMoveSpeed;
+		worldTransform_.translation_.z += move_.z;
+		break;
+	}
+
+
 	worldTransformMatrix(worldTransform_);
 }
 
