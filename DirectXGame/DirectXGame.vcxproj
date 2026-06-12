@@ -165,8 +165,11 @@
   <ItemGroup>
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="Vector&amp;Matrix.cpp" />
+    <ClCompile Include="Vector.cpp" />
     <ClCompile Include="worldTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -268,8 +271,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="Matrix.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
+    <ClInclude Include="Vector&amp;Matrix.h" />
+    <ClInclude Include="Vector.h" />
     <ClInclude Include="worldTransform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

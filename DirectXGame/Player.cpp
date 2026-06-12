@@ -30,7 +30,17 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 void Player::Update() {
 	// 移動ベクトルの初期化
-	move_ = {0.0f, 0.0f, 0.0f};
+	move_ = {
+		0.0f,
+		0.0f, 0.0f
+	};
+	bullets_.remove_if([](PlayerBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
 
 	// 左右入力による移動方向の決定
 	if (input_->PushKey(DIK_LEFT)) {
@@ -60,7 +70,7 @@ void Player::Update() {
 	worldTransform_.translation_.y =
 		std::clamp(worldTransform_.translation_.y, kLowerLimitY, kUpperLimitY);
 
-
+	Rotate();
 	Attack();
 	// ワールド行列の転送
 	worldTransformMatrix(worldTransform_);
@@ -96,18 +106,23 @@ void Player::Draw(const Camera& camera) {
 void Player::Attack() {
 	if (input_->TriggerKey(DIK_SPACE)) {
 		Vector3 position = worldTransform_.translation_;
+		constexpr float kBulletSpeed = 1.0f;
+		Vector3 velocity(0.0f, 0.0f, kBulletSpeed);
 
+		velocity = TransformNormal(velocity, MakeRotateYMatrix(worldTransform_.rotation_.y));
 
 		auto newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, position);
+		newBullet->Initialize(model_, position, velocity);
 
 		bullets_.push_back(newBullet);
 	}
 }
 
 Player::~Player() {
-	delete bullet_;
-	bullet_ = nullptr;
+	for (PlayerBullet* bullet : bullets_) {
+		delete bullet;
+	}
+	bullets_.clear();
 }
 
 Player::Player() {
