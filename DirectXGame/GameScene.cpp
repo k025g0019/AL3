@@ -83,7 +83,8 @@ void GameScene::Update() {
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
 		AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
-	} else {
+	}
+	else {
 		camera_.TransferMatrix();
 		AxisIndicator::GetInstance()->SetTargetCamera(&camera_);
 	}
