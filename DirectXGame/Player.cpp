@@ -1,4 +1,4 @@
-#include "Player.h"
+﻿#include "Player.h"
 
 #include <algorithm>
 #include <math/MathUtility.h>
@@ -7,16 +7,16 @@
 using namespace KamataEngine;
 
 void Player::Initialize(Model* model, uint32_t textureHandle) {
-	// 引数で受け取った値をメンバ変数に記録する
+	// 蠑墓焚縺ｧ蜿励￠蜿悶▲縺溷､繧偵Γ繝ｳ繝仙､画焚縺ｫ險倬鹸縺吶ｋ
 	model_ = model;
 	textureHandle_ = textureHandle;
 	input_ = Input::GetInstance();
 
-	// 必須データの存在確認
+	// 蠢・医ョ繝ｼ繧ｿ縺ｮ蟄伜惠遒ｺ隱・
 	assert(model_ != nullptr);
 	assert(input_ != nullptr);
 
-	// ワールド座標の初期化
+	// 繝ｯ繝ｼ繝ｫ繝牙ｺｧ讓吶・蛻晄悄蛹・
 	worldTransform_.Initialize();
 	worldTransform_.scale_ = {2.0f, 2.0f, 2.0f};
 	worldTransform_.translation_ = {0.0f, 0.0f, 0.0f};
@@ -24,19 +24,19 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 }
 
 void Player::Update() {
-	// 毎フレーム移動量をリセットする
+	// 豈弱ヵ繝ｬ繝ｼ繝遘ｻ蜍暮㍼繧偵Μ繧ｻ繝・ヨ縺吶ｋ
 	move_ = {0.0f, 0.0f, 0.0f};
 
-	bullets_.remove_if([](PlayerBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
+	for (auto bulletIterator = bullets_.begin(); bulletIterator != bullets_.end();) {
+		if ((*bulletIterator)->IsDead()) {
+			delete *bulletIterator;
+			bulletIterator = bullets_.erase(bulletIterator);
+		} else {
+			++bulletIterator;
 		}
+	}
 
-		return false;
-	});
-
-	// 左右移動入力
+	// 蟾ｦ蜿ｳ遘ｻ蜍募・蜉・
 	if (input_->PushKey(DIK_LEFT)) {
 		move_.x -= kMoveSpeed;
 	}
@@ -45,7 +45,7 @@ void Player::Update() {
 		move_.x += kMoveSpeed;
 	}
 
-	// 上下移動入力
+	// 荳贋ｸ狗ｧｻ蜍募・蜉・
 	if (input_->PushKey(DIK_UP)) {
 		move_.y += kMoveSpeed;
 	}
@@ -54,11 +54,11 @@ void Player::Update() {
 		move_.y -= kMoveSpeed;
 	}
 
-	// 移動処理
+	// 遘ｻ蜍募・逅・
 	worldTransform_.translation_.x += move_.x;
 	worldTransform_.translation_.y += move_.y;
 
-	// 画面外に出ないように座標を制限する
+	// 逕ｻ髱｢螟悶↓蜃ｺ縺ｪ縺・ｈ縺・↓蠎ｧ讓吶ｒ蛻ｶ髯舌☆繧・
 	worldTransform_.translation_.x =
 		std::clamp(worldTransform_.translation_.x, kLowerLimitX, kUpperLimitX);
 	worldTransform_.translation_.y =
@@ -67,7 +67,7 @@ void Player::Update() {
 	Rotate();
 	Attack();
 
-	// 行列の更新
+	// 陦悟・縺ｮ譖ｴ譁ｰ
 	worldTransformMatrix(worldTransform_);
 
 	for (PlayerBullet* bullet : bullets_) {
@@ -76,7 +76,7 @@ void Player::Update() {
 }
 
 void Player::Rotate() {
-	// 回転速度
+	// 蝗櫁ｻ｢騾溷ｺｦ
 	constexpr float kRotSpeed = 0.02f;
 
 	if (input_->PushKey(DIK_A)) {
