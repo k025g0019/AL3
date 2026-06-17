@@ -1,6 +1,7 @@
 #pragma once
 #include "Matrix.h"
 #include "Vector.h"
+#include "KamataEngine.h"
 
 struct Sphere {
 	Vector3 center;
@@ -55,6 +56,8 @@ struct Capsule {
 	float radius;
 };
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
+Vector3 TransformNormal(const Vector3& vector, const Matrix4x4& matrix);
+KamataEngine::Vector3 TransformNormal(const KamataEngine::Vector3& vector, const KamataEngine::Matrix4x4& matrix);
 Matrix4x4 MakeTranslationMatrix(const Vector3& translation);
 Matrix4x4 MakeScaleMatrix(const Vector3& scale);
 
