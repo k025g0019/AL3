@@ -464,7 +464,7 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 
 
 //========================================================
-// 物理ゾーン
+// 迚ｩ逅・だ繝ｼ繝ｳ
 //===============-	===================================================
 
 Ball Springsmire(const Ball& ball, const Spring& spring, float deltaTime) {
@@ -478,7 +478,7 @@ Ball Springsmire(const Ball& ball, const Spring& spring, float deltaTime) {
 		Vector3 restoringForce = -spring.stiffness * displacement;
 		Vector3 force = restoringForce;
 		resultBall.acceleration = force * (1.0f / ball.mass);
-		//減衰抵抗を計算する
+		//貂幄｡ｰ謚ｵ謚励ｒ險育ｮ励☆繧・
 		Vector3 dampingForce = -spring.dampingCoefficient * ball.velocity;
 		resultBall.acceleration += dampingForce * (1.0f / ball.mass);
 	}
