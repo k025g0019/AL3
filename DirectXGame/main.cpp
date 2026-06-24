@@ -6,16 +6,16 @@
 using namespace KamataEngine;
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
-	KamataEngine::Initialize(L"AL2_Skydome");
+	Initialize(L"AL2_Skydome");
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-	GameScene* gameScene = new GameScene();
+	auto gameScene = new GameScene();
 	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
 
 	gameScene->Initialize();
 
 	while (true) {
-		if (KamataEngine::Update()) {
+		if (Update()) {
 			break;
 		}
 
@@ -32,6 +32,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	delete gameScene;
 	gameScene = nullptr;
 
-	KamataEngine::Finalize();
+	Finalize();
 	return 0;
 }
