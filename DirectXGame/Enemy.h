@@ -22,7 +22,7 @@ public:
 	EnemyBullet* bullet_ = nullptr;
 	~Enemy();
 
-	void approachPhase();
+	void approachPhaseInitialize();
 	static constexpr int kFireInterval = 60; // 弾発射間隔（フレーム）
 private:
 	KamataEngine::Model* model_ = nullptr;
