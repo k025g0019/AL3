@@ -1,6 +1,7 @@
 #include "Player.h"
 
 #include <algorithm>
+#include <cassert>
 #include <math/MathUtility.h>
 
 using namespace KamataEngine;

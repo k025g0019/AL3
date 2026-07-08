@@ -1,4 +1,7 @@
 #include "PlayerBullet.h"
+
+#include <cassert>
+
 #include "worldTransform.h"
 using namespace KamataEngine;
 

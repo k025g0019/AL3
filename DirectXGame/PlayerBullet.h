@@ -17,7 +17,7 @@ public:
 
 	static constexpr int32_t kLifeTime = 60 * 5;
 
-	//ですタイマー
+	//タイマー
 	int32_t deathTimer_ = kLifeTime;
 
 	bool isDead_ = false;
