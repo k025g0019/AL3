@@ -10,20 +10,26 @@ enum class Phase {
 	Leave, // 攻撃
 };
 
+class Player;
+
 class Enemy {
 public:
 	void Initialize(KamataEngine::Model* model, uint32_t textureHandle);
 
 	void Update();
 	void Draw(const KamataEngine::Camera& camera);
-	const KamataEngine::Vector3& GetWorldPosition() const { return worldTransform_.translation_; }
+
 	Phase phase_ = Phase::Approach;
 	std::list<EnemyBullet*> bullets_;
 	EnemyBullet* bullet_ = nullptr;
 	~Enemy();
-
+	Player* player_ = nullptr;
 	void approachPhaseInitialize();
 	static constexpr int kFireInterval = 60; // 弾発射間隔（フレーム）
+	void SetPlayer(Player* player) { player_ = player; }
+
+	KamataEngine::Vector3 GetWorldPosition();
+
 private:
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::WorldTransform worldTransform_;

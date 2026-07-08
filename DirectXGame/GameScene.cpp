@@ -47,6 +47,7 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetCamera(&camera_);
 
+	enemy_->SetPlayer(player_);
 	isInitialized_ = true;
 }
 
@@ -91,7 +92,7 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 	assert(player_ != nullptr);
-
+	assert(enemy_ != nullptr);
 	const Camera& activeCamera = GetActiveCamera(camera_, debugCamera_, isDebugCameraActive_);
 
 	Model::PreDraw();
@@ -105,6 +106,7 @@ GameScene::GameScene() {
 
 GameScene::~GameScene() {
 	delete player_;
+	delete enemy_;
 	delete debugCamera_;
 	delete playerModel_;
 	delete enemyModel_;

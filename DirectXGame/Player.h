@@ -3,8 +3,8 @@
 #include  <list>
 
 #include "KamataEngine.h"
+
 #include  "PlayerBullet.h"
-#include "worldTransform.h"
 
 class Player {
 public:
@@ -31,12 +31,17 @@ public:
 
 	PlayerBullet* bullet_ = nullptr;
 
+	KamataEngine::Vector3 GetworldPosition();
+
 private:
 	// メンバ変数
 	KamataEngine::Input* input_ = nullptr;
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::WorldTransform worldTransform_;
-	uint32_t textureHandle_ = 0u;
+
+	KamataEngine::Matrix4x4 worldTransformMatrix_;
+
+	uint32_t textureHandle_ = 0;
 
 	// 移動ベクトル
 	KamataEngine::Vector3 move_ = {0.0f, 0.0f, 0.0f};

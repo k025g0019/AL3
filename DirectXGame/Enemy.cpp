@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cassert>
 #include <math/MathUtility.h>
+#include  "Player.h"
 using namespace KamataEngine;
 using namespace KamataEngine::MathUtility;
 
@@ -76,11 +77,20 @@ void Enemy::Draw(const Camera& camera) {
 }
 
 void Enemy::Fire() {
+	assert(player_);
 	Vector3 position = worldTransform_.translation_;
 	constexpr float kBulletSpeed = 0.5f;
 	Vector3 velocity(0.0f, 0.0f, -kBulletSpeed);
 
 	velocity = TransformNormal(velocity, MakeRotateYMatrix(worldTransform_.rotation_.y));
+
+	const Vector3 playerPosition = player_->GetWorldPosition();
+	const Vector3 enemyWorldPosition = GetWorldPosition();
+
+	Vector3 toPlayer = playerPosition - enemyWorldPosition;
+	Vector3 direction = Normalize(toPlayer);
+
+	velocity = direction * kBulletSpeed;
 
 	auto newBullet = new EnemyBullet();
 	newBullet->Initialize(model_, position, velocity);
@@ -97,4 +107,12 @@ Enemy::~Enemy() {
 
 void Enemy::approachPhaseInitialize() {
 	fireTimer = 60;
+}
+
+Vector3 Enemy::GetWorldPosition() {
+	Vector3 worldPos;
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+	return worldPos;
 }
